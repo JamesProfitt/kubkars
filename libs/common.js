@@ -98,8 +98,11 @@ async function getCurrentUserId()
             console.warn('User not logged in');
             return null;
         }
-        const { id } = await res.json();
-        return id;
+        const id = await res.json();
+        console.log(id);
+        const userid = id.username;
+        console.log(userid);
+        return userid;
     }
     catch (err) 
     {

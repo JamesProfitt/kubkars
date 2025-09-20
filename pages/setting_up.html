@@ -416,8 +416,8 @@
             }
         }
     }
-    
-    $(document).ready(function() 
+
+    $(document).ready(async function() 
     {
         
         // Add an event listener to look for changes to the selection of track
@@ -427,17 +427,7 @@
         $('#TrackContent').hide();
         
         var dbID = getCookie("KubKarsScoutTrucks_dbID");
-        var nmPerson = getCurrentUserId().then(userId => {
-                          if (userId) 
-                          {
-                              console.log(`Logged in user’s ID: ${userId}`);
-                          }
-                          else 
-                          {
-                              console.log('No user ID available');
-                          }
-                       });
-        
+        var nmPerson = await getCurrentUserId();
         // Put the Name on the grid
         document.getElementById('nmPersonCell').innerHTML = htmlEncode(nmPerson)
         
