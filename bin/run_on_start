@@ -26,10 +26,10 @@ var options = {
 
 /**
  * Get port from environment and store in Express.
-   OR Use default: 3000
+   OR Use default: 80
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '80');
 app.set('port', port);
 
 /**
