@@ -1,0 +1,9 @@
+update statistics [dbo].[Cars];
+update statistics [dbo].[Groups];
+update statistics [dbo].[HeatAudit];
+update statistics [dbo].[Heats];
+update statistics [dbo].[RunoffAudit];
+update statistics [dbo].[RunOffs];
+update statistics [dbo].[RunoffTracks];
+update statistics [dbo].[Settings];
+update statistics [dbo].[Tracks];

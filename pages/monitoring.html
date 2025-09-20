@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <title>Kub Kars and Scout Trucks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/libs/bootstrap-5.3.3-dist/css/bootstrap.css" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="/assets/images/Scouts-Badge.png">
+  <script src="/libs/jquery-3.7.1.min.js" type="application/javascript"></script>
+  <script src="/libs/bootstrap-5.3.3-dist/js/bootstrap.js" type="application/javascript"></script>
+  <script src="/libs/popper.min.js" type="application/javascript"></script>
+  <script src="/libs/common.js" type="application/javascript"></script>
+  
+  <script>
+
+    // A function to show an alert when there is an error
+    function showAlert(CustomInnerHTML) 
+    {
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        const appendAlert = () => 
+        {
+            const wrapper = document.createElement('div')
+            wrapper.innerHTML = [CustomInnerHTML].join('')
+            alertPlaceholder.append(wrapper)
+        }
+        appendAlert();
+    }
+
+    function refreshTrackData()
+    {
+    
+        var dbID = getCookie("KubKarsScoutTrucks_dbID");
+        // Refresh when a real option is selected
+        if (dbID == 1 || dbID == 2) 
+        {
+            if (dbID == 1)
+            {
+                var HeatStatsURL = window.location.origin + '/api/cubs/heatstats'
+                var RunOffStatsURL = window.location.origin + '/api/cubs/runoffstats'
+            }
+            if (dbID == 2)
+            {
+                var HeatStatsURL = window.location.origin + '/api/scouts/heatstats'
+                var RunOffStatsURL = window.location.origin + '/api/scouts/runoffstats'
+            }
+            // Refresh the summary and race data
+            fetchAndGenerateTable(HeatStatsURL,'HeatSummary');
+            fetchAndGenerateTable(RunOffStatsURL,'RunOffSummary');
+            
+        }
+    }
+    
+    $(document).ready(function() 
+    {
+        var dbID = getCookie("KubKarsScoutTrucks_dbID");
+        
+        // Must be a 1 or 2
+        if (dbID == 1 || dbID == 2) 
+        {
+            // Change data source based on cookie, and update the Section based on the cookie
+            if (dbID == 1) 
+            {
+                document.getElementById('MainHeader').innerHTML = htmlEncode('Kub Kars - Monitoring')
+            }
+            if (dbID == 2) 
+            {
+                document.getElementById('MainHeader').innerHTML = htmlEncode('Scout Trucks - Monitoring')
+            }
+            
+            try 
+            {
+                // Put those Track Ids in the select dropdown.
+                // Call the function to populate the Track List
+                refreshTrackData();
+                // The page from now on responds to user input
+            } 
+            catch (error) 
+            {
+                // draw an alert box with the error visible
+                showAlert(['<div class="alert alert-danger fade show" role="alert">',
+                           '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a>',
+                           error,
+                           '</div>'])
+            }
+            
+        } 
+        else 
+        {
+          
+          // Show the alert
+          showAlert(['<div class="alert alert-danger fade show" role="alert">',
+                     '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>',
+                     '</div>'])
+        }
+
+    });
+ 
+  </script>
+  
+</head>
+
+<body>
+
+  <!-- Offcanvas Sidebar -->
+  <div class="offcanvas offcanvas-start" id="RoleSwitcher">
+    <div class="offcanvas-header">
+      <h1 class="offcanvas-title">Switch Role</h1>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Choose a role to switch to, or start again:</p>
+      <p><br>
+      <a href="/kubkars" class="btn btn-primary">Start Over</a>
+      <p><br>
+      <a href="/setting_up" class="btn btn-primary">Setting Up</a> 
+      <p><br>
+      <a href="/recording" class="btn btn-primary">Recording</a> 
+      <p><br>
+      <a href="/monitoring" class="btn btn-primary">Monitoring</a> 
+      <p>
+    </div>
+  </div>
+  
+  <div class="container-fluid p-5 bg-info text-white text-center">
+    <h1 id="MainHeader"></h1>
+    <!-- Button to open the offcanvas sidebar -->
+    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button> 
+  </div>
+
+  <!-- Container for any alerts -->
+  <div id="liveAlertPlaceholder"></div>
+  
+  <!-- Main Page Container -->
+  <div class="container-fluid p-5 bg-white text-black text-center" id="mainPageContent">
+  
+    <!-- A Refresh Data Button -->
+    <button type="button" class="btn btn-primary" onclick="refreshTrackData()">Refresh</button>
+    <br>
+    <!-- Track Data -->
+    <br>
+    <div class="container" id="TrackContent">
+      
+      <!-- A heat summary at the top of the page -->
+      <div id="TrackSummary">
+      
+        <h4>Heats</h4>
+        <div id="HeatSummary"></div>
+        
+        <br>
+        <hr>
+        <br>
+        
+        <h4>Run-Offs</h4>
+        <div id="RunOffSummary"></div>
+        
+      </div>
+
+    </div>
+    
+  </div>
+  
+</body>
+</html>

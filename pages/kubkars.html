@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <title>Kub Kars and Scout Trucks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/libs/bootstrap-5.3.3-dist/css/bootstrap.css" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="/assets/images/Scouts-Badge.png">
+  <script src="/libs/jquery-3.7.1.min.js" type="application/javascript"></script>
+  <script src="/libs/bootstrap-5.3.3-dist/js/bootstrap.js" type="application/javascript"></script>
+  <script src="/libs/popper.min.js" type="application/javascript"></script>
+  <script src="/libs/common.js" type="application/javascript"></script>
+
+  <script>
+  
+    // A function to show an alert when there is an error
+    function showAlert(CustomInnerHTML) 
+    {
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        const appendAlert = () => 
+        {
+            const wrapper = document.createElement('div')
+            wrapper.innerHTML = [CustomInnerHTML].join('')
+            alertPlaceholder.append(wrapper)
+        }
+        appendAlert();
+    }
+    
+    // Taken from: https://getbootstrap.com/docs/5.0/forms/validation/
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    
+    (function () 
+    {
+        'use strict'
+        
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+        
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+          .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+              if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+              }
+        
+              form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+    
+    // Function called when the form is successfully completed
+    
+    function SetAndCheckCookies()
+    {
+    
+        // Set Cookies
+        setCookie('KubKarsScoutTrucks_dbID',document.getElementById("frmSectionInput").value,1);
+        setCookie('KubKarsScoutTrucks_role',document.getElementById("frmRoleInput").value,1);
+        
+        // Check that setting the cookies actually worked
+        if (getCookie('KubKarsScoutTrucks_dbID') != document.getElementById("frmSectionInput").value)
+        {
+            $('#CookieError').show();
+            return false;
+        }
+        
+        if (getCookie('KubKarsScoutTrucks_role') != document.getElementById("frmRoleInput").value) 
+        {
+            $('#CookieError').show();
+            return false;
+        }
+        
+        return true;
+    }
+    
+    async function CheckBeforeFormSubmit()
+    {
+    
+        var SetAndCheck = SetAndCheckCookies();
+        
+        if (SetAndCheck == true) 
+        {
+        
+            // Get the dbID value based on the selection:
+            var dbID = getCookie('KubKarsScoutTrucks_dbID');
+            
+            // Must be a 1 or 2
+            if (dbID == 1 || dbID == 2) 
+            {
+            
+                // Change data source based on cookie, and update the Section based on the cookie
+                if (dbID == 1) 
+                {
+                    var LoginUrl = window.location.origin + '/api/cubs/login'
+                }
+                
+                if (dbID == 2)
+                {
+                    var LoginUrl = window.location.origin + '/api/scouts/login'
+                }
+    
+                if ( document.getElementById("frmRoleInput").value == "r1" )
+                {
+                    document.getElementById("frmIndex").action = "/setting_up"
+                }
+                else if ( document.getElementById("frmRoleInput").value == "r2" ) 
+                {
+                    document.getElementById("frmIndex").action = "/recording"
+                } 
+                else if ( document.getElementById("frmRoleInput").value == "r3" ) 
+                {
+                    document.getElementById("frmIndex").action = "/monitoring"
+                }
+    
+                document.getElementById("frmIndex").submit();
+    
+            }
+        }
+    }
+    
+    // Show the role information when it is selected
+    // Since there's only three, just hide them all and show what was chosen
+    
+    function showSelectedItem() 
+    {
+        $('#r1').hide();
+        $('#r2').hide();
+        $('#r3').hide();
+      
+        var item = document.getElementById("frmRoleInput").value;
+      
+        if (item == "r1" || item == "r2" || item == "r3")
+        {
+            $('#' + item).show();
+        }
+    }
+    
+    $(document).ready(function()
+    {
+        document.getElementById("frmRoleInput").addEventListener("change", showSelectedItem);
+        $('#r1').hide();
+        $('#r2').hide();
+        $('#r3').hide();
+    });
+  
+  </script>
+
+</head>
+<body>
+
+  <div class="container-fluid p-5 bg-info text-white text-center">
+    <h1>Kub Kars and Scout Trucks Racing App</h1>
+    <h4>Please choose your role</h4>
+  </div>
+  
+  <div class="alert alert-error collapse" role="alert" id="CookieError">
+    <span>
+    <p>There was an error when setting/checking cookies</p>
+    </span>
+  </div>
+  
+  <div class="container-fluid p-5 bg-white text-black text-center">
+
+    <!-- Container for any login alerts -->
+    <div id="liveAlertPlaceholder"></div>
+
+    <form class="row gy-2 gx-3 align-items-center" id="frmIndex">
+  
+      <!-- Section Field -->
+      <div class="mb-3 row g-3">
+        <label class="visually-hidden" for="frmSectionInput">Section</label>
+        <select class="form-select" id="frmSectionInput" required>
+          <option selected>Choose Section...</option>
+          <option value="1">Cubs</option>
+          <option value="2">Scouts</option>
+        </select>
+        <div class="invalid-feedback">
+          Please choose a section.
+        </div>
+      </div>
+      <!-- Role Field -->
+      <div class="mb-3 row g-3">
+        <label class="visually-hidden" for="frmRoleInput">Role</label>
+        <select class="form-select" id="frmRoleInput" required>
+          <option selected>Choose Role...</option>
+          <option value="r1">Setting Up</option>
+          <option value="r2">Recording</option>
+          <option value="r3">Monitoring</option>
+        </select>
+        <div class="invalid-feedback">
+          Please choose a role.
+        </div>
+        <div class="collapse" id="r1">
+          <div class="col-sm bg-warning text-black">
+            <p>You will be responsible for making sure the right cars are placed at the head of the track</p>
+            <p>This app will tell you who is racing, and who is up next.</p>
+            <p>You won't be able to record results in this mode.</p>
+          </div>
+        </div>
+        <div class="collapse" id="r2">
+          <div class="col-sm bg-warning text-black">
+            <p>You will be responsible for making sure the right results are recorded for each race.</p>
+            <p>Keep an eye on which lane finishes 1st, 2nd or 3rd, and make sure you record it before moving on to the next race.</p>
+          </div>
+        </div>
+        <div class="collapse" id="r3">
+          <div class="col-sm bg-warning text-black">
+            <p>In this mode, you can keep track of how many races are finished, and how many are still pending.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Submit Button -->
+      <div class="mb-3 row g-3">
+        <button type="button" id="btnsubmit" onclick="CheckBeforeFormSubmit()" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
+  </div>
+</body>
+
+</html>

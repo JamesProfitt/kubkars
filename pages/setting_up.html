@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <title>Kub Kars and Scout Trucks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/libs/bootstrap-5.3.3-dist/css/bootstrap.css" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="/assets/images/Scouts-Badge.png">
+  <script src="/libs/jquery-3.7.1.min.js" type="application/javascript"></script>
+  <script src="/libs/bootstrap-5.3.3-dist/js/bootstrap.js" type="application/javascript"></script>
+  <script src="/libs/popper.min.js" type="application/javascript"></script>
+  <script src="/libs/common.js" type="application/javascript"></script>
+  
+  <script>
+
+    // A function to show an alert when there is an error
+    function showAlert(CustomInnerHTML) 
+    {
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        const appendAlert = () => 
+        {
+            const wrapper = document.createElement('div')
+            wrapper.innerHTML = [CustomInnerHTML].join('')
+            alertPlaceholder.append(wrapper)
+        }
+        appendAlert();
+    }
+
+    // A function to call the API to put the Track IDs in the dropdown
+    async function fetchDataAndPopulateDropdown(apiurl)
+    {
+        try
+        {
+            const response = await fetch(apiurl);
+            if (!response.ok)
+            {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            const dropdown = document.getElementById('frmTrackInput');
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.track;
+                option.textContent = item.track;
+                dropdown.appendChild(option);
+            });
+        } 
+        catch (error)
+        {
+            showAlert(['<div class="alert alert-danger fade show" role="alert">',
+                       '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ',
+                       error,
+                       '</div>'])
+        }
+    }
+    
+    // A function to update the summary data for the selected track
+    // data[0] is used because the summary ALWAYS returns ONE record.
+    
+    async function fetchAndPopulateRaceAndSummary(TrackSummaryURL,RaceURL,VehiclesPerHeatURL)
+    {
+        try
+        {
+            const vph_response = await fetch(VehiclesPerHeatURL);
+            if (!vph_response.ok) 
+            {
+                throw new Error(`HTTP error! Status: ${vph_response.status}`);
+            }
+            const vph_data = await vph_response.json();
+
+            var vehicles_per_heat = vph_data[0].VehiclesPerHeat
+
+            const t_response = await fetch(TrackSummaryURL);
+            if (!t_response.ok) 
+            {
+                throw new Error(`HTTP error! Status: ${t_response.status}`);
+            }
+            const t_data = await t_response.json();
+            
+            // Heat Summary
+            document.getElementById('statHeatPercentComplete').innerHTML = htmlEncode(t_data[0].heats_pct_complete)
+            document.getElementById('statTotalHeats').innerHTML = htmlEncode(t_data[0].total_heat_count)
+            document.getElementById('statFinishedHeats').innerHTML = htmlEncode(t_data[0].finished_heats)
+            document.getElementById('statUnfinishedHeats').innerHTML = htmlEncode(t_data[0].unfinished_heats)
+            document.getElementById('statCurrentHeat').innerHTML = htmlEncode(t_data[0].current_heat)
+            document.getElementById('statNextHeat').innerHTML = htmlEncode(t_data[0].next_heat)
+            // Runoff Summary
+            document.getElementById('statTotalRunOffs').innerHTML = htmlEncode(t_data[0].total_runoff_count)
+            document.getElementById('statFinishedRunOffs').innerHTML = htmlEncode(t_data[0].finished_runoffs)
+            document.getElementById('statUnfinishedRunOffs').innerHTML = htmlEncode(t_data[0].unfinished_runoffs)
+            document.getElementById('statROPercentComplete').innerHTML = htmlEncode(t_data[0].runoffs_pct_complete)
+            document.getElementById('statCurrentRunOff').innerHTML = htmlEncode(t_data[0].current_runoff)
+            document.getElementById('statNextRunOff').innerHTML = htmlEncode(t_data[0].next_runoff)
+            
+            // Clear the Current Race Entries
+            document.getElementById('CurRaceNum').innerHTML = '';
+            document.getElementById('CurLane1CarID').innerHTML = '';
+            document.getElementById('CurLane2CarID').innerHTML = '';
+            document.getElementById('CurLane3CarID').innerHTML = '';
+            document.getElementById('CurLane4CarID').innerHTML = '';
+            document.getElementById('CurLane5CarID').innerHTML = '';
+            document.getElementById('CurLane6CarID').innerHTML = '';
+            // Clear the Next Race Entries
+            document.getElementById('NxtRaceNum').innerHTML = '';
+            document.getElementById('NxtLane1CarID').innerHTML = '';
+            document.getElementById('NxtLane2CarID').innerHTML = '';
+            document.getElementById('NxtLane3CarID').innerHTML = '';
+            document.getElementById('NxtLane4CarID').innerHTML = '';
+            document.getElementById('NxtLane5CarID').innerHTML = '';
+            document.getElementById('NxtLane6CarID').innerHTML = '';
+            
+            // TODO: Images or Colours for visibility?
+            
+            
+            // Show the heats if they are not finished
+            if ( parseFloat(t_data[0].heats_pct_complete) < 100 && parseFloat(t_data[0].heats_pct_complete) >= 0 )
+            {
+                // Current Heat Data
+                const ch_response = await fetch(RaceURL + '/' + t_data[0].current_heat);
+                if (!ch_response.ok) 
+                {
+                    throw new Error(`HTTP error! Status: ${ch_response.status}`);
+                }
+                const ch_data = await ch_response.json();
+                
+                // Next Heat Data
+                const nh_response = await fetch(RaceURL + '/' + t_data[0].next_heat);
+                if (!nh_response.ok) 
+                {
+                    throw new Error(`HTTP error! Status: ${nh_response.status}`);
+                }
+                const nh_data = await nh_response.json();
+                
+                // Hide the "Races Complete" div
+                $('#AllRacesComplete').hide();
+                // Show the Heats, hide the run-offs (not started)
+                $('#HeatSummary').show();
+                $('#RunOffSummary').hide();
+                
+                // Current Race Updates:
+                document.getElementById('CurRaceNum').innerHTML = htmlEncode(t_data[0].current_heat)
+                
+                // There's probably a nicer way of doing this, but this works.
+                
+                // Hide them all
+                $('#CurLane1Row').hide();
+                $('#CurLane2Row').hide();
+                $('#CurLane3Row').hide();
+                $('#CurLane4Row').hide();
+                $('#CurLane5Row').hide();
+                $('#CurLane6Row').hide();
+                
+                // Show them based on the vehicles_per_heat setting
+
+                if ( vehicles_per_heat == 6 )
+                {
+                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(ch_data[0].lane6_carNumber + ' - ' + ch_data[0].lane6_driver)
+                    $('#CurLane6Row').show()
+                }
+                
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
+                {
+                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(ch_data[0].lane5_carNumber + ' - ' + ch_data[0].lane5_driver)
+                    $('#CurLane5Row').show()
+                }
+                
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ){
+                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(ch_data[0].lane4_carNumber + ' - ' + ch_data[0].lane4_driver)
+                    $('#CurLane4Row').show()
+                }
+
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
+                {
+                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(ch_data[0].lane3_carNumber + ' - ' + ch_data[0].lane3_driver)
+                    $('#CurLane3Row').show()
+                }
+
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 )
+                {
+                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(ch_data[0].lane2_carNumber + ' - ' + ch_data[0].lane2_driver)
+                    $('#CurLane2Row').show()
+                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(ch_data[0].lane1_carNumber + ' - ' + ch_data[0].lane1_driver)
+                    $('#CurLane1Row').show()
+                }
+                
+                // Next Race Updates:
+                document.getElementById('NxtRaceNum').innerHTML = htmlEncode(t_data[0].current_heat)
+                
+                // Hide them all
+                $('#NxtLane1Row').hide();
+                $('#NxtLane2Row').hide();
+                $('#NxtLane3Row').hide();
+                $('#NxtLane4Row').hide();
+                $('#NxtLane5Row').hide();
+                $('#NxtLane6Row').hide();
+                
+                // Show them based on the vehicles_per_heat setting
+                
+                if ( vehicles_per_heat == 6 ) 
+                {
+                    document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nh_data[0].lane6_carNumber + ' - ' + nh_data[0].lane6_driver)
+                    $('#NxtLane6Row').show();
+                }
+                
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
+                {
+                    document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nh_data[0].lane5_carNumber + ' - ' + nh_data[0].lane5_driver)
+                    $('#NxtLane5Row').show();
+                }
+                    
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
+                {
+                    document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nh_data[0].lane4_carNumber + ' - ' + nh_data[0].lane4_driver)
+                    $('#NxtLane4Row').show();
+                }
+                    
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
+                {
+                    document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nh_data[0].lane3_carNumber + ' - ' + nh_data[0].lane3_driver)
+                    $('#NxtLane3Row').show();
+                }
+                    
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
+                {
+                    document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nh_data[0].lane2_carNumber + ' - ' + nh_data[0].lane2_driver)
+                    $('#NxtLane2Row').show();
+                    document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nh_data[0].lane1_carNumber + ' - ' + nh_data[0].lane1_driver)
+                    $('#NxtLane1Row').show();
+                }
+                
+                // Show Current/Next Race
+                $('#CurrentRace').show();
+                // TODO: If LAST race, we can hide NEXT
+                $('#NextRace').show();
+            }
+            // Hide the heats and show the runoffs if these are incomplete
+            else if ( parseFloat(t_data[0].heats_pct_complete) == 100 && parseFloat(t_data[0].runoffs_pct_complete) < 100 && parseFloat(t_data[0].runoffs_pct_complete) >= 0 )
+            {
+                // Hide the "Races Complete" div
+                $('#AllRacesComplete').hide();
+                // Hide the heats
+                $('#HeatSummary').hide();
+                // Show the Run Offs
+                $('#RunOffSummary').show();
+                
+                // Current RunOff Data
+                const cr_response = await fetch(RaceURL + '/' + t_data[0].current_runoff);
+                if (!cr_response.ok) 
+                {
+                    throw new Error(`HTTP error! Status: ${cr_response.status}`);
+                }
+                const cr_data = await cr_response.json();
+                
+                // Next RunOff Data
+                const nr_response = await fetch(RaceURL + '/' + t_data[0].next_runoff);
+                if (!nr_response.ok) 
+                {
+                    throw new Error(`HTTP error! Status: ${nr_response.status}`);
+                }
+                const nr_data = await nr_response.json();                
+                
+                // Current Race Updates:
+                document.getElementById('CurRaceNum').innerHTML = htmlEncode(t_data[0].current_runoff)
+                
+                // There's probably a nicer way of doing this, but this works.
+                
+                // Hide them all
+                $('#CurLane1Row').hide();
+                $('#CurLane2Row').hide();
+                $('#CurLane3Row').hide();
+                $('#CurLane4Row').hide();
+                $('#CurLane5Row').hide();
+                $('#CurLane6Row').hide();
+                
+                // Show them based on the vehicles_per_heat setting
+
+                if ( vehicles_per_heat == 6 ) 
+                {
+                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(cr_data[0].lane6_carNumber + ' - ' + cr_data[0].lane6_driver)
+                    $('#CurLane6Row').show()
+                }
+                
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
+                {
+                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(cr_data[0].lane5_carNumber + ' - ' + cr_data[0].lane5_driver)
+                    $('#CurLane5Row').show()
+                }
+                
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
+                {
+                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(cr_data[0].lane4_carNumber + ' - ' + cr_data[0].lane4_driver)
+                    $('#CurLane4Row').show()
+                }
+
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
+                {
+                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(cr_data[0].lane3_carNumber + ' - ' + cr_data[0].lane3_driver)
+                    $('#CurLane3Row').show()
+                }
+
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 )
+                {
+                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(cr_data[0].lane2_carNumber + ' - ' + cr_data[0].lane2_driver)
+                    $('#CurLane2Row').show()
+                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(cr_data[0].lane1_carNumber + ' - ' + cr_data[0].lane1_driver)
+                    $('#CurLane1Row').show()
+                }
+
+                // Next Race Updates:
+                document.getElementById('NxtRaceNum').innerHTML = htmlEncode(t_data[0].next_runoff)
+                
+                // Hide them all
+                $('#NxtLane1Row').hide();
+                $('#NxtLane2Row').hide();
+                $('#NxtLane3Row').hide();
+                $('#NxtLane4Row').hide();
+                $('#NxtLane5Row').hide();
+                $('#NxtLane6Row').hide();
+                
+                // Show them based on the vehicles_per_heat setting
+                
+                if ( vehicles_per_heat == 6 ) 
+                {
+                    document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nr_data[0].lane6_carNumber + ' - ' + nr_data[0].lane6_driver)
+                    $('#NxtLane6Row').show();
+                }
+                
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
+                {
+                    document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nr_data[0].lane5_carNumber + ' - ' + nr_data[0].lane5_driver)
+                    $('#NxtLane5Row').show();
+                }
+                    
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
+                {
+                    document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nr_data[0].lane4_carNumber + ' - ' + nr_data[0].lane4_driver)
+                    $('#NxtLane4Row').show();
+                }
+                    
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
+                {
+                    document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nr_data[0].lane3_carNumber + ' - ' + nr_data[0].lane3_driver)
+                    $('#NxtLane3Row').show();
+                }
+                    
+                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
+                {
+                    document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nr_data[0].lane2_carNumber + ' - ' + nr_data[0].lane2_driver)
+                    $('#NxtLane2Row').show();
+                    document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nr_data[0].lane1_carNumber + ' - ' + nr_data[0].lane1_driver)
+                    $('#NxtLane1Row').show();
+                }
+                
+                // Show Current/Next Race
+                $('#CurrentRace').show();
+                
+                // TODO: If LAST race, we can hide NEXT
+                $('#NextRace').show();
+            }
+            // Additional logic to add some visual aids (Complete/Incomplete)
+            else if ( parseFloat(t_data[0].heats_pct_complete) == 100 && parseFloat(t_data[0].runoffs_pct_complete) == 100 )
+            {
+                // Hide everything not required
+                $('#HeatSummary').hide();
+                $('#RunOffSummary').hide();
+                $('#CurrentRace').hide();
+                $('#NextRace').hide();
+                // Show the "Races Complete" div
+                $('#AllRacesComplete').show();
+            }
+        } 
+        catch (error) 
+        {
+            showAlert(['<div class="alert alert-danger fade show" role="alert">',
+                       '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ',
+                       error,
+                       '</div>'])
+        }
+    }
+
+    function refreshTrackData()
+    {
+        // item is the option that was selected, might be the default or an actual track id
+        var item = document.getElementById("frmTrackInput").value;
+        
+        if (item == "default")
+        {
+            // Hide everything when the default option is selected
+            $('#TrackContent').hide();
+        }
+        else 
+        {
+            var dbID = getCookie("KubKarsScoutTrucks_dbID");
+            // Refresh when a real option is selected
+            if (dbID == 1 || dbID == 2) 
+            {
+                if (dbID == 1)
+                {
+                    var TrackSummaryURL = window.location.origin + '/api/cubs/tracksummary/' + item
+                    var RaceURL = window.location.origin + '/api/cubs/race/' + item
+                    var VehiclesPerHeatURL = window.location.origin + '/api/cubs/vehicles_per_heat'
+                }
+                
+                if (dbID == 2)
+                {
+                    var TrackSummaryURL = window.location.origin + '/api/scouts/tracksummary/' + item
+                    var RaceURL = window.location.origin + '/api/scouts/race/' + item
+                    var VehiclesPerHeatURL = window.location.origin + '/api/scouts/vehicles_per_heat'
+                }
+                // Show the Content
+                $('#TrackContent').show();
+                
+                // Refresh the summary and race data
+                fetchAndPopulateRaceAndSummary(TrackSummaryURL,RaceURL,VehiclesPerHeatURL);
+                
+            }
+        }
+    }
+    
+    $(document).ready(function() 
+    {
+        
+        // Add an event listener to look for changes to the selection of track
+        document.getElementById("frmTrackInput").addEventListener("change", refreshTrackData);
+        
+        // When the track is selected, these will be shown again
+        $('#TrackContent').hide();
+        
+        var dbID = getCookie("KubKarsScoutTrucks_dbID");
+        var nmPerson = getCurrentUserId().then(userId => {
+                          if (userId) 
+                          {
+                              console.log(`Logged in user’s ID: ${userId}`);
+                          }
+                          else 
+                          {
+                              console.log('No user ID available');
+                          }
+                       });
+        
+        // Put the Name on the grid
+        document.getElementById('nmPersonCell').innerHTML = htmlEncode(nmPerson)
+        
+        // Must be a 1 or 2
+        if (dbID == 1 || dbID == 2) 
+        {
+            // Change data source based on cookie, and update the Section based on the cookie
+            if (dbID == 1) 
+            {
+                document.getElementById('SectionCell').innerHTML = htmlEncode('Cubs')
+                document.getElementById('MainHeader').innerHTML = htmlEncode('Kub Kars - Setting Up')
+                var TracksUrl = window.location.origin + '/api/cubs/tracks'
+            }
+            
+            if (dbID == 2) 
+            {
+                document.getElementById('SectionCell').innerHTML = htmlEncode('Scouts')
+                document.getElementById('MainHeader').innerHTML = htmlEncode('Scout Trucks - Setting Up')
+                var TracksUrl = window.location.origin + '/api/scouts/tracks'
+            }
+            
+            try 
+            {
+                // Put those Track Ids in the select dropdown.
+                // Call the function to populate the Track List
+                fetchDataAndPopulateDropdown(TracksUrl);
+                // The page from now on responds to user input
+            } 
+            catch (error) 
+            {
+                // draw an alert box with the error visible
+                showAlert(['<div class="alert alert-danger fade show" role="alert">',
+                           '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a>',
+                           error,
+                           '</div>'])
+            }
+            
+        } 
+        else 
+        {
+          
+          // Show the alert
+          showAlert(['<div class="alert alert-danger fade show" role="alert">',
+                     '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>',
+                     '</div>'])
+        }
+
+    });
+ 
+  </script>
+  
+  
+  
+</head>
+
+<body>
+
+  <!-- Offcanvas Sidebar -->
+  <div class="offcanvas offcanvas-start" id="RoleSwitcher">
+    <div class="offcanvas-header">
+      <h1 class="offcanvas-title">Switch Role</h1>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Choose a role to switch to, or start again:</p>
+      <p><br>
+      <a href="/kubkars" class="btn btn-primary">Start Over</a>
+      <p><br>
+      <a href="/setting_up" class="btn btn-primary">Setting Up</a> 
+      <p><br>
+      <a href="/recording" class="btn btn-primary">Recording</a> 
+      <p><br>
+      <a href="/monitoring" class="btn btn-primary">Monitoring</a> 
+      <p>
+    </div>
+  </div>
+  
+  <div class="container-fluid p-5 bg-info text-white text-center">
+    <h1 id="MainHeader"></h1>
+    <!-- Button to open the offcanvas sidebar -->
+    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button> 
+  </div>
+
+  <!-- Container for any alerts -->
+  <div id="liveAlertPlaceholder"></div>
+  
+  <!-- Main Page Container -->
+  <div class="container-fluid p-5 bg-white text-black text-center" id="mainPageContent">
+  
+    <!-- Info Box -->
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col border bg-light text-end"><strong>Section:</strong></div>
+        <div class="col border" id='SectionCell'></div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col border bg-light text-end"><strong>Name:</strong></div>
+        <div class="col border" id='nmPersonCell'></div>
+      </div>
+    </div>
+    <br>
+    <!-- Selector for Track -->
+    <br>
+    <label for="frmTrackInput"><h4>Select Track:</h4></label>
+    <select class="form-select" id="frmTrackInput" required>
+      <option value="default" selected>Choose Track...</option>
+    </select>
+    <br>
+    <!-- A Refresh Data Button -->
+    <button type="button" class="btn btn-primary" onclick="refreshTrackData()">Refresh</button>
+    <br>
+    <!-- Track Data -->
+    <br>
+    <div class="container" id="TrackContent">
+      
+      <!-- A heat summary at the top of the page -->
+      <div id="TrackSummary">
+        <div id="HeatSummary">
+          <h4>Heats</h4>
+          <div class="container-fluid">
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Total:</strong></div><div class="col border" id='statTotalHeats'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Finished:</strong></div><div class="col border" id='statFinishedHeats'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Unfinished:</strong></div><div class="col border" id='statUnfinishedHeats'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>% Complete:</strong></div><div class="col border" id='statHeatPercentComplete'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Current Heat:</strong></div><div class="col border" id='statCurrentHeat'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Next Heat:</strong></div><div class="col border" id='statNextHeat'></div>
+            </div>
+          </div>
+        </div>
+        <div id="RunOffSummary">
+          <h4>Run-Offs</h4>
+          <div class="container-fluid">
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Total RunOffs:</strong></div><div class="col border" id='statTotalRunOffs'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Finished:</strong></div><div class="col border" id='statFinishedRunOffs'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Unfinished:</strong></div><div class="col border" id='statUnfinishedRunOffs'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>% Complete:</strong></div><div class="col border" id='statROPercentComplete'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Current RunOff:</strong></div><div class="col border" id='statCurrentRunOff'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Next RunOff:</strong></div><div class="col border" id='statNextRunOff'></div>
+            </div>
+          </div>
+          <br>
+        </div>
+      </div>
+      
+      <!-- Current Heat -->
+      <!-- Not all lanes will be shown, depends on Vehicles Per Heat setting. -->
+      <div id="CurrentRace">
+        <h4>Current Race</h4>
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col border bg-light text-end"><strong>Race #:</strong></div><div class="col border" id='CurRaceNum'></div>
+          </div>
+          <div class="row justify-content-center" id="CurLane1Row">
+            <div class="col border bg-light text-end"><strong>Lane 1:</strong></div><div class="col border" id='CurLane1CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="CurLane2Row">
+            <div class="col border bg-light text-end"><strong>Lane 2:</strong></div><div class="col border" id='CurLane2CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="CurLane3Row">
+            <div class="col border bg-light text-end"><strong>Lane 3:</strong></div><div class="col border" id='CurLane3CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="CurLane4Row">
+            <div class="col border bg-light text-end"><strong>Lane 4:</strong></div><div class="col border" id='CurLane4CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="CurLane5Row">
+            <div class="col border bg-light text-end"><strong>Lane 5:</strong></div><div class="col border" id='CurLane5CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="CurLane6Row">
+            <div class="col border bg-light text-end"><strong>Lane 6:</strong></div><div class="col border" id='CurLane6CarID'></div>
+          </div>
+        </div>
+        <br> 
+      </div>
+      
+      <!-- Next Heat -->
+      <!-- Not all lanes will be shown, depends on Vehicles Per Heat setting. -->
+      <div id="NextRace">
+        <h4>Next Race</h4>
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col border bg-light text-end"><strong>Race #:</strong></div><div class="col border" id='NxtRaceNum'></div>
+          </div>
+          <div class="row justify-content-center" id="NxtLane1Row">
+            <div class="col border bg-light text-end"><strong>Lane 1:</strong></div><div class="col border" id='NxtLane1CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="NxtLane2Row">
+            <div class="col border bg-light text-end"><strong>Lane 2:</strong></div><div class="col border" id='NxtLane2CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="NxtLane3Row">
+            <div class="col border bg-light text-end"><strong>Lane 3:</strong></div><div class="col border" id='NxtLane3CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="NxtLane4Row">
+            <div class="col border bg-light text-end"><strong>Lane 4:</strong></div><div class="col border" id='NxtLane4CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="NxtLane5Row">
+            <div class="col border bg-light text-end"><strong>Lane 5:</strong></div><div class="col border" id='NxtLane5CarID'></div>
+          </div>
+          <div class="row justify-content-center" id="NxtLane6Row">
+            <div class="col border bg-light text-end"><strong>Lane 6:</strong></div><div class="col border" id='NxtLane6CarID'></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- A Hidden div, shown when all races are finished -->
+      <div class="container-fluid collapse" id="AllRacesComplete">
+          <h3>Racing Finished!</h3>
+      </div>
+
+    </div>
+    
+  
+  
+  </div>
+  
+</body>
+</html>

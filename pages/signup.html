@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <title>Kub Kars and Scout Trucks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="../libs/bootstrap-5.3.3-dist/css/bootstrap.css" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="../assets/images/Scouts-Badge.png">
+  <script src="../libs/jquery-3.7.1.min.js" type="application/javascript"></script>
+  <script src="../libs/bootstrap-5.3.3-dist/js/bootstrap.js" type="application/javascript"></script>
+  <script src="../libs/popper.min.js" type="application/javascript"></script>
+  <script src="../libs/common.js" type="application/javascript"></script>
+  
+</head>
+<body>
+
+  <div class="container-fluid p-5 bg-info text-white text-center">
+    <h1>Kub Kars and Scout Trucks Racing App</h1>
+    <h4>Use this form to signup</h4>
+  </div>
+  
+  <div class="container-fluid p-5 bg-white text-black">
+  
+			<h1 class="text-center">Sign-up</h1>
+
+			<form class="row gy-2 gx-3 align-items-center" action="/signup" method="post">
+				<div data-mdb-input-init class="form-outline mb-3">
+					<label class="form-label" for="username">Choose a username:</label>
+					<input class="form-control" id="username" name="username" type="text" required autofocus>
+				</div>
+				<div data-mdb-input-init class="form-outline mb-3">
+					<label class="form-label" for="password">Choose a Password:</label>
+					<input class="form-control" id="password" name="password" type="password" required>
+				</div>
+        <input type="hidden" name="_csrf" id="csrf">
+        <script>
+          fetch('/csrf-token', { credentials: 'include' })
+            .then(r => r.json())
+            .then(d => document.getElementById('csrf').value = d.csrfToken);
+        </script>
+				<button type="submit" class="btn btn-primary">Sign Up!</button>
+			</form>
+
+  </div>
+
+</body>
+
+</html>  

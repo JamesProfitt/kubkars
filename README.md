@@ -1,2 +1,3 @@
-# kubkars
-A web front end to record race results for Kub Kars/Scout Trucks
+# kub-kars
+
+An app for kub kars
