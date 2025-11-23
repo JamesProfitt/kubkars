@@ -11,6 +11,7 @@ var util = require('util');
 //var helmet = require('helmet');
 var bodyParser = require('body-parser');
 const path = require('path');
+const nocache = require('nocache');
 
 const { csrfSync } = require("csrf-sync");
 
@@ -47,6 +48,8 @@ app.set('view engine', 'ejs');
 //  }
 //}));
 
+
+app.use(nocache());
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());

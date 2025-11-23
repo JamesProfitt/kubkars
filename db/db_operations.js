@@ -157,6 +157,7 @@ async function GetRace(dbID, TrackID, HeatID)
                     "    on h.lane6 = c6.CarNumber " + 
                     " where h.Track = @TrackID " + 
                     "   and h.heat = @HeatID " +
+                    "   and h.run is null " +
                     " union " +
                     "select 2 as run_type" + 
                     "      ,r.track" + 
@@ -193,7 +194,8 @@ async function GetRace(dbID, TrackID, HeatID)
                     "  left join Cars rc6 " + 
                     "    on r.lane6 = rc6.CarNumber " + 
                     " where r.Track = @TrackID " + 
-                    "   and r.heat = @HeatID "
+                    "   and r.heat = @HeatID " +
+                    "   and r.run is null"
                     );
            return products.recordsets;
        }

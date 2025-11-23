@@ -47,10 +47,11 @@
         } 
         catch (error)
         {
-            showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                       '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ',
-                       error,
-                       '</div>'])
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ' +
+                      error +
+                     '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                     '</div>')
         }
     }
     
@@ -124,12 +125,19 @@
                 const ch_data = await ch_response.json();
                 
                 // Next Heat Data
-                const nh_response = await fetch(RaceURL + '/' + t_data[0].next_heat);
-                if (!nh_response.ok) 
+                // Not called if zero
+                
+                if ( t_data[0].next_heat > 0 )
                 {
-                    throw new Error(`HTTP error! Status: ${nh_response.status}`);
+                
+                    const nh_response = await fetch(RaceURL + '/' + t_data[0].next_heat);
+                    if (!nh_response.ok) 
+                    {
+                        throw new Error(`HTTP error! Status: ${nh_response.status}`);
+                    }
+                    const nh_data = await nh_response.json();
+
                 }
-                const nh_data = await nh_response.json();
                 
                 // Hide the "Races Complete" div
                 $('#AllRacesComplete').hide();
@@ -183,10 +191,10 @@
                     $('#CurLane1Row').show()
                 }
                 
-                // Next Race Updates:
-                document.getElementById('NxtRaceNum').innerHTML = htmlEncode(t_data[0].current_heat)
+                // Show Current Race
+                $('#CurrentRace').show();
                 
-                // Hide them all
+                // Hide all Next Race rows.
                 $('#NxtLane1Row').hide();
                 $('#NxtLane2Row').hide();
                 $('#NxtLane3Row').hide();
@@ -194,44 +202,53 @@
                 $('#NxtLane5Row').hide();
                 $('#NxtLane6Row').hide();
                 
-                // Show them based on the vehicles_per_heat setting
-                
-                if ( vehicles_per_heat == 6 ) 
+                // Next Race Updates:
+                if ( t_data[0].next_heat == 0 )
                 {
-                    document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nh_data[0].lane6_carNumber + ' - ' + nh_data[0].lane6_driver)
-                    $('#NxtLane6Row').show();
+                    document.getElementById('NxtRaceNum').innerHTML = "None Left"
                 }
-                
-                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
+                else
                 {
-                    document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nh_data[0].lane5_carNumber + ' - ' + nh_data[0].lane5_driver)
-                    $('#NxtLane5Row').show();
-                }
+                    document.getElementById('NxtRaceNum').innerHTML = htmlEncode(t_data[0].next_heat)
+
+                    // Show them based on the vehicles_per_heat setting
                     
-                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
-                {
-                    document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nh_data[0].lane4_carNumber + ' - ' + nh_data[0].lane4_driver)
-                    $('#NxtLane4Row').show();
-                }
+                    if ( vehicles_per_heat == 6 ) 
+                    {
+                        document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nh_data[0].lane6_carNumber + ' - ' + nh_data[0].lane6_driver)
+                        $('#NxtLane6Row').show();
+                    }
                     
-                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
-                {
-                    document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nh_data[0].lane3_carNumber + ' - ' + nh_data[0].lane3_driver)
-                    $('#NxtLane3Row').show();
-                }
-                    
-                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
-                {
-                    document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nh_data[0].lane2_carNumber + ' - ' + nh_data[0].lane2_driver)
-                    $('#NxtLane2Row').show();
-                    document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nh_data[0].lane1_carNumber + ' - ' + nh_data[0].lane1_driver)
-                    $('#NxtLane1Row').show();
+                    if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
+                    {
+                        document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nh_data[0].lane5_carNumber + ' - ' + nh_data[0].lane5_driver)
+                        $('#NxtLane5Row').show();
+                    }
+                        
+                    if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
+                    {
+                        document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nh_data[0].lane4_carNumber + ' - ' + nh_data[0].lane4_driver)
+                        $('#NxtLane4Row').show();
+                    }
+                        
+                    if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
+                    {
+                        document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nh_data[0].lane3_carNumber + ' - ' + nh_data[0].lane3_driver)
+                        $('#NxtLane3Row').show();
+                    }
+                        
+                    if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
+                    {
+                        document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nh_data[0].lane2_carNumber + ' - ' + nh_data[0].lane2_driver)
+                        $('#NxtLane2Row').show();
+                        document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nh_data[0].lane1_carNumber + ' - ' + nh_data[0].lane1_driver)
+                        $('#NxtLane1Row').show();
+                    }
+
+                    $('#NextRace').show();
+
                 }
                 
-                // Show Current/Next Race
-                $('#CurrentRace').show();
-                // TODO: If LAST race, we can hide NEXT
-                $('#NextRace').show();
             }
             // Hide the heats and show the runoffs if these are incomplete
             else if ( parseFloat(t_data[0].heats_pct_complete) == 100 && parseFloat(t_data[0].runoffs_pct_complete) < 100 && parseFloat(t_data[0].runoffs_pct_complete) >= 0 )
@@ -250,14 +267,6 @@
                     throw new Error(`HTTP error! Status: ${cr_response.status}`);
                 }
                 const cr_data = await cr_response.json();
-                
-                // Next RunOff Data
-                const nr_response = await fetch(RaceURL + '/' + t_data[0].next_runoff);
-                if (!nr_response.ok) 
-                {
-                    throw new Error(`HTTP error! Status: ${nr_response.status}`);
-                }
-                const nr_data = await nr_response.json();                
                 
                 // Current Race Updates:
                 document.getElementById('CurRaceNum').innerHTML = htmlEncode(t_data[0].current_runoff)
@@ -306,8 +315,10 @@
                     $('#CurLane1Row').show()
                 }
 
+                // Show Current Race
+                $('#CurrentRace').show();
+
                 // Next Race Updates:
-                document.getElementById('NxtRaceNum').innerHTML = htmlEncode(t_data[0].next_runoff)
                 
                 // Hide them all
                 $('#NxtLane1Row').hide();
@@ -317,45 +328,61 @@
                 $('#NxtLane5Row').hide();
                 $('#NxtLane6Row').hide();
                 
-                // Show them based on the vehicles_per_heat setting
+                // Next Race Updates:
                 
-                if ( vehicles_per_heat == 6 ) 
+                if ( t_data[0].next_runoff == 0 )
                 {
-                    document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nr_data[0].lane6_carNumber + ' - ' + nr_data[0].lane6_driver)
-                    $('#NxtLane6Row').show();
+                    document.getElementById('NxtRaceNum').innerHTML = "None Left"
                 }
-                
-                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
+                else
                 {
-                    document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nr_data[0].lane5_carNumber + ' - ' + nr_data[0].lane5_driver)
-                    $('#NxtLane5Row').show();
-                }
+                    const nr_response = await fetch(RaceURL + '/' + t_data[0].next_runoff);
+                    if (!nr_response.ok) 
+                    {
+                        throw new Error(`HTTP error! Status: ${nr_response.status}`);
+                    }
+                    const nr_data = await nr_response.json();
+
+                    document.getElementById('NxtRaceNum').innerHTML = htmlEncode(t_data[0].next_runoff)
+
+                    // Show them based on the vehicles_per_heat setting
                     
-                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
-                {
-                    document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nr_data[0].lane4_carNumber + ' - ' + nr_data[0].lane4_driver)
-                    $('#NxtLane4Row').show();
-                }
+                    if ( vehicles_per_heat == 6 ) 
+                    {
+                        document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nr_data[0].lane6_carNumber + ' - ' + nr_data[0].lane6_driver)
+                        $('#NxtLane6Row').show();
+                    }
                     
-                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
-                {
-                    document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nr_data[0].lane3_carNumber + ' - ' + nr_data[0].lane3_driver)
-                    $('#NxtLane3Row').show();
-                }
+                    if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
+                    {
+                        document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nr_data[0].lane5_carNumber + ' - ' + nr_data[0].lane5_driver)
+                        $('#NxtLane5Row').show();
+                    }
+                        
+                    if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
+                    {
+                        document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nr_data[0].lane4_carNumber + ' - ' + nr_data[0].lane4_driver)
+                        $('#NxtLane4Row').show();
+                    }
+                        
+                    if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
+                    {
+                        document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nr_data[0].lane3_carNumber + ' - ' + nr_data[0].lane3_driver)
+                        $('#NxtLane3Row').show();
+                    }
+                        
+                    if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
+                    {
+                        document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nr_data[0].lane2_carNumber + ' - ' + nr_data[0].lane2_driver)
+                        $('#NxtLane2Row').show();
+                        document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nr_data[0].lane1_carNumber + ' - ' + nr_data[0].lane1_driver)
+                        $('#NxtLane1Row').show();
+                    }
+
+                    $('#NextRace').show();
                     
-                if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
-                {
-                    document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nr_data[0].lane2_carNumber + ' - ' + nr_data[0].lane2_driver)
-                    $('#NxtLane2Row').show();
-                    document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nr_data[0].lane1_carNumber + ' - ' + nr_data[0].lane1_driver)
-                    $('#NxtLane1Row').show();
                 }
                 
-                // Show Current/Next Race
-                $('#CurrentRace').show();
-                
-                // TODO: If LAST race, we can hide NEXT
-                $('#NextRace').show();
             }
             // Additional logic to add some visual aids (Complete/Incomplete)
             else if ( parseFloat(t_data[0].heats_pct_complete) == 100 && parseFloat(t_data[0].runoffs_pct_complete) == 100 )
@@ -371,10 +398,11 @@
         } 
         catch (error) 
         {
-            showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                       '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ',
-                       error,
-                       '</div>'])
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ' +
+                      error +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>')
         }
     }
 
@@ -459,10 +487,11 @@
             catch (error) 
             {
                 // draw an alert box with the error visible
-                showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                           '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a>',
-                           error,
-                           '</div>'])
+                showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                          '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a>' +
+                          error +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>')
             }
             
         } 
@@ -470,9 +499,10 @@
         {
           
           // Show the alert
-          showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                     '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>',
-                     '</div>'])
+          showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                    '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>' +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                    '</div>')
         }
 
     });

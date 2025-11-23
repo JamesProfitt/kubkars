@@ -77,10 +77,11 @@
             catch (error) 
             {
                 // draw an alert box with the error visible
-                showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                           '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a>',
-                           error,
-                           '</div>'])
+                showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                          '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a>' +
+                          error +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>')
             }
             
         } 
@@ -88,9 +89,10 @@
         {
           
           // Show the alert
-          showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                     '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>',
-                     '</div>'])
+          showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                    '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>' +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                    '</div>')
         }
 
     });

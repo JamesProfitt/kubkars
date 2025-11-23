@@ -7,6 +7,8 @@ var crypto = require('crypto');
 var userdb = require('@db/user_db');
 const path = require('path');
 
+var router = express.Router();
+
 /* Configure password authentication strategy.
  *
  * The `LocalStrategy` authenticates users by verifying a username and password.
@@ -19,19 +21,59 @@ const path = require('path');
  * user is authenticated; otherwise, not.
  */
 passport.use(new LocalStrategy(function verify(username, password, cb) {
-  userdb.get('SELECT * FROM users WHERE username = ?', [ username ], function(err, row) {
-    if (err) { return cb(err); }
-    if (!row) { return cb(null, false, { message: 'Incorrect username or password.' }); }
+  
+    userdb.get('SELECT * FROM users WHERE username = ?', [ username ], function(err, row)
+    {
+        if (err) 
+        { 
+            return cb(err);
+        }
+        
+        if (!row) 
+        { 
+            return cb(null, false, { message: 'Incorrect username or password.' });
+        }
+        
+        crypto.pbkdf2(password, row.salt, 310000, 32, 'sha256', function(err, hashedPassword) 
+        {
+            if (err) 
+            { 
+                return cb(err);
+            }
+            
+            if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) 
+            {
+                return cb(null, false, { message: 'Incorrect username or password.' });
+            }
+            return cb(null, row);
+        });
     
-    crypto.pbkdf2(password, row.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
-      if (err) { return cb(err); }
-      if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) {
-        return cb(null, false, { message: 'Incorrect username or password.' });
-      }
-      return cb(null, row);
     });
-  });
+    
 }));
+
+router.route('/checkuser/:username').get((request, response) => {
+
+    const userid = request.params.username;
+    
+    if (!userid) 
+    {
+        return res.status(400).json({ available: false, message: 'No username provided' });
+    }
+
+    userdb.get('SELECT username FROM users WHERE username = ? LIMIT 1', [ userid ], (err, row) => {
+        if (err)
+        {
+            return response.status(500).json({ available: false, message: 'Database error' });
+        }
+        if (row) 
+        {
+            return response.json({ available: false, message: 'Username already taken' });
+        }
+        return response.json({ available: true, message: 'Username is available' });
+    });
+});
+
 
 /* Configure session management.
  *
@@ -61,10 +103,6 @@ passport.deserializeUser(function(user, cb) {
         return cb(null, user);
     });
 });
-
-
-var router = express.Router();
-
 
 // Protected pages 
 // kubkars is the main page
@@ -190,25 +228,40 @@ router.get('/signup', function(req, res, next) {
  * successfully created, the user is logged in.
  */
 router.post('/signup', function(req, res, next) {
-  var salt = crypto.randomBytes(16);
-  crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256', function(err, hashedPassword) {
-    if (err) { return next(err); }
-    userdb.run('INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)', [
-      req.body.username,
-      hashedPassword,
-      salt
-    ], function(err) {
-      if (err) { return next(err); }
-      var user = {
-        id: this.lastID,
-        username: req.body.username
-      };
-      req.login(user, function(err) {
-        if (err) { return next(err); }
-        res.redirect('/');
-      });
+    
+    var salt = crypto.randomBytes(16);
+    crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256', function(err, hashedPassword) 
+    {
+        if (err) 
+        { 
+            return next(err); 
+        }
+        
+        userdb.run('INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)', [
+          req.body.username,
+          hashedPassword,
+          salt
+        ], function(err) {
+          if (err) 
+          { 
+              return next(err);
+          }
+          
+          var user = {
+            id: this.lastID,
+            username: req.body.username
+          };
+          
+          req.login(user, function(err) {
+              if (err) 
+              { 
+                  return next(err);
+              }
+              res.redirect('/');
+          });
+          
+        });
     });
-  });
 });
 
 module.exports = router;

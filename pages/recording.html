@@ -66,10 +66,11 @@
         } 
         catch (error)
         {
-            showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                       '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ',
-                       error,
-                       '</div>'])
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ' +
+                      error +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>')
         }
     }
     
@@ -176,13 +177,6 @@
             // Show the heats if they are not finished
             if ( parseFloat(t_data[0].heats_pct_complete) < 100 && parseFloat(t_data[0].heats_pct_complete) >= 0 )
             {
-                // Current Heat Data
-                const ch_response = await fetch(RaceURL + '/' + t_data[0].current_heat);
-                if (!ch_response.ok) 
-                {
-                    throw new Error(`HTTP error! Status: ${ch_response.status}`);
-                }
-                const ch_data = await ch_response.json();
                 
                 // Hide the "Races Complete" div
                 $('#AllRacesComplete').hide();
@@ -216,8 +210,16 @@
                 $('#CurLane5ResultRow').hide();
                 $('#CurLane6ResultRow').hide();
                 
+                // Current Heat Data
+                const ch_response = await fetch(RaceURL + '/' + t_data[0].current_heat);
+                if (!ch_response.ok) 
+                {
+                    throw new Error(`HTTP error! Status: ${ch_response.status}`);
+                }
+                const ch_data = await ch_response.json();
+                
                 // Show them based on the vehicles_per_heat setting
-
+                
                 if ( vehicles_per_heat == 6 ) 
                 {
                     document.getElementById('CurLane6CarID').innerHTML = htmlEncode(ch_data[0].lane6_carNumber + ' - ' + ch_data[0].lane6_driver);
@@ -278,14 +280,6 @@
                 // Show the Run Offs
                 $('#RunOffSummary').show();
                 
-                // Current RunOff Data
-                const cr_response = await fetch(RaceURL + '/' + t_data[0].current_runoff);
-                if (!cr_response.ok) 
-                {
-                    throw new Error(`HTTP error! Status: ${cr_response.status}`);
-                }
-                const cr_data = await cr_response.json();
-                
                 // Current Race Updates:
                 document.getElementById('CurRaceNum').innerHTML = htmlEncode(t_data[0].current_runoff);
                 document.getElementById('CurRaceType').innerHTML = 'RunOff';
@@ -310,6 +304,14 @@
                 $('#CurLane4ResultRow').hide();
                 $('#CurLane5ResultRow').hide();
                 $('#CurLane6ResultRow').hide();
+                
+                // Current RunOff Data
+                const cr_response = await fetch(RaceURL + '/' + t_data[0].current_runoff);
+                if (!cr_response.ok) 
+                {
+                    throw new Error(`HTTP error! Status: ${cr_response.status}`);
+                }
+                const cr_data = await cr_response.json();
                 
                 // Show them based on the vehicles_per_heat setting
                 if ( vehicles_per_heat == 6 ) 
@@ -384,10 +386,11 @@
         } 
         catch (error) 
         {
-            showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                       '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ',
-                       error,
-                       '</div>']);
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ' +
+                      error +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>');
         }
     }
 
@@ -773,10 +776,11 @@
         } catch (error) 
         {
             // draw an alert box with the error visible
-            showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                       '  <strong>Ooops!</strong> There was an error during saving of data. You can try doing it again, or <a href="recording.html" class="alert-link">Reload Page</a>',
-                       error,
-                       '</div>']);
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> There was an error during saving of data. You can try doing it again, or <a href="recording.html" class="alert-link">Reload Page</a>' +
+                      error +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>');
         }
         
     }
@@ -961,10 +965,11 @@
         catch (error) 
         {
             // draw an alert box with the error visible
-            showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                       '  <strong>Ooops!</strong> There was an error during data processing. You can try doing it again, or <a href="recording.html" class="alert-link">Reload Page</a>',
-                       error,
-                       '</div>']);
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> There was an error during data processing. You can try doing it again, or <a href="recording.html" class="alert-link">Reload Page</a>' +
+                      error +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>');
         }
         
     }
@@ -1025,18 +1030,20 @@
                 // The page from now on responds to user input
             } catch (error) {
                 // draw an alert box with the error visible
-                showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                           '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="recording.html" class="alert-link">Reload Page</a>',
-                           error,
-                           '</div>']);
+                showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                          '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="recording.html" class="alert-link">Reload Page</a>' +
+                          error +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>');
             }
             
         } else {
           
           // Show the alert
-          showAlert(['<div class="alert alert-danger fade show" role="alert">',
-                     '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>',
-                     '</div>']);
+          showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                    '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>' +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                    '</div>');
         }
 
     });

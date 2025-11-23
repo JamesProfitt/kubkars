@@ -11,6 +11,173 @@
   <script src="../libs/popper.min.js" type="application/javascript"></script>
   <script src="../libs/common.js" type="application/javascript"></script>
   
+<script>
+
+    function validatePassword(password, username) {
+        // At least 8 chars, one uppercase, one lowercase, one number, one special char
+        const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/;
+        if (!passwordRegex.test(password)) return false;
+        if (password.toLowerCase().includes(username.toLowerCase())) return false;
+        return true;
+    }
+
+    function validateUsername(username) 
+    {
+        // Letters, numbers, underscores, hyphens, 3–20 chars
+        const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/;
+        return usernameRegex.test(username);
+    }
+            
+    // A function to show an alert when there is an error
+    function showAlert(CustomInnerHTML) 
+    {
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        // Clear previous alerts, keep the latest
+        alertPlaceholder.innerHTML = "";
+        const appendAlert = () => 
+        {
+            const wrapper = document.createElement('div')
+            wrapper.innerHTML = [CustomInnerHTML].join('')
+            alertPlaceholder.append(wrapper)
+        }
+        appendAlert();
+    }
+
+    $(document).ready(function()
+    {
+        // When the user moves focus off the username field, this method gets called.
+        
+        document.getElementById('username').addEventListener('blur', async function() 
+        {
+            const username = this.value;
+            const submitButton = document.getElementById('btnsubmit');
+            
+            if (!username) return;
+
+            try
+            {
+                const res = await fetch('/checkuser/' + encodeURIComponent(username));
+                const data = await res.json();
+                
+                if (data.available)
+                {
+                    
+                    if (!validateUsername(username))
+                    {
+                        showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                                  'Invalid Username. Must be 3-20 in length. Allowed characters: a-z A-Z 0-9 _ - ' +
+                                  '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                  '</div>');
+                        // Disable the Submit button
+                        submitButton.disabled = true;
+                        // Clear the entry
+                        usernameInput.textContent = "";
+                    }
+                    else
+                    {
+                        // Enable the Submit button
+                        submitButton.disabled = false;
+                        // draw a success alert box
+                        showAlert('<div class="alert alert-success alert-dismissible" role="alert">' +
+                                  'User Name Available' +
+                                  '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                  '</div>')
+                    }
+                }
+                else
+                {
+                    // Disable the Submit button
+                    submitButton.disabled = true;
+                    // draw a success alert box
+                    showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                              'That user name is already taken, please choose another' +
+                              '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                              '</div>')
+                }
+            }
+            catch (err)
+            {
+                console.error(err);
+            }
+            
+        });
+        
+        // When the user moves focus off the password field, this method gets called.
+        
+        document.getElementById('password').addEventListener('blur', async function() 
+        {
+            const passwordValue = this.value;
+            const usernameValue = document.getElementById('username').value;
+            const submitButton = document.getElementById('btnsubmit');
+            
+            if (!passwordValue) return;
+            
+            if (!validatePassword(passwordValue,usernameValue))
+            {
+                showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                          'Invalid Password. Must be at least 8 characters in length. One uppercase, One lowercase, One number, One special character (#?!@$%^&*-). Must not include Username' +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>');
+                passwordInput.textContent = "";
+                // Disable the Submit button
+                submitButton.disabled = true;
+            }
+            else
+            {
+                showAlert('<div class="alert alert-success alert-dismissible" role="alert">' +
+                          'Password OK' +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>')
+                // Enable the Submit button
+                submitButton.disabled = false;
+            }
+        });
+        
+        const signupForm = document.getElementById('submitForm');
+        
+        signupForm.addEventListener('submit', function(event)
+        {
+            let valid = true;
+            
+            event.preventDefault(); // Prevent default form submission
+            
+            const usernameInput = document.getElementById('username');
+            const usernameValue = usernameInput.value.trim();
+
+            const passwordInput = document.getElementById('password');
+            const passwordValue = passwordInput.value.trim();
+            
+            // Do some basic checking of usernames/passwords
+            if (!validateUsername(usernameValue))
+            {
+                showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                          'Invalid Username. Must be 3-20 in length. Allowed characters: a-z A-Z 0-9 _ - ' +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>');
+                usernameInput.textContent = "";
+                valid = false;
+            }
+            
+            if (!validatePassword(passwordValue))
+            {
+                showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                          'Invalid Password. Must be at least 8 characters in length. One uppercase, One lowercase, One number, One special character. Must not include Username' +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>');
+                passwordInput.textContent = "";
+                valid = false;
+            }
+            
+            if (valid)
+            {
+                // If validation passes, submit the form
+                signupForm.submit(); // Programmatically submit the form
+            }
+        });
+    
+    });
+    
+</script>  
 </head>
 <body>
 
@@ -18,12 +185,15 @@
     <h1>Kub Kars and Scout Trucks Racing App</h1>
     <h4>Use this form to signup</h4>
   </div>
+
+  <!-- Container for any alerts -->
+  <div id="liveAlertPlaceholder"></div>
   
   <div class="container-fluid p-5 bg-white text-black">
   
 			<h1 class="text-center">Sign-up</h1>
 
-			<form class="row gy-2 gx-3 align-items-center" action="/signup" method="post">
+			<form id="submitForm" class="row gy-2 gx-3 align-items-center" action="/signup" method="post">
 				<div data-mdb-input-init class="form-outline mb-3">
 					<label class="form-label" for="username">Choose a username:</label>
 					<input class="form-control" id="username" name="username" type="text" required autofocus>
@@ -38,7 +208,7 @@
             .then(r => r.json())
             .then(d => document.getElementById('csrf').value = d.csrfToken);
         </script>
-				<button type="submit" class="btn btn-primary">Sign Up!</button>
+				<button type="submit" class="btn btn-primary" id="btnsubmit">Sign Up!</button>
 			</form>
 
   </div>
