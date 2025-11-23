@@ -70,29 +70,27 @@
                                   '</div>');
                         // Disable the Submit button
                         submitButton.disabled = true;
-                        // Clear the entry
-                        usernameInput.textContent = "";
                     }
                     else
                     {
-                        // Enable the Submit button
-                        submitButton.disabled = false;
                         // draw a success alert box
                         showAlert('<div class="alert alert-success alert-dismissible" role="alert">' +
                                   'User Name Available' +
                                   '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                                   '</div>')
+                        // Enable the Submit button
+                        submitButton.disabled = false;
                     }
                 }
                 else
                 {
-                    // Disable the Submit button
-                    submitButton.disabled = true;
                     // draw a success alert box
                     showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
                               'That user name is already taken, please choose another' +
                               '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                               '</div>')
+                    // Disable the Submit button
+                    submitButton.disabled = true;
                 }
             }
             catch (err)
@@ -153,24 +151,26 @@
                           'Invalid Username. Must be 3-20 in length. Allowed characters: a-z A-Z 0-9 _ - ' +
                           '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                           '</div>');
-                usernameInput.textContent = "";
                 valid = false;
+                // Disable the Submit button
+                submitButton.disabled = true;
             }
             
-            if (!validatePassword(passwordValue))
+            if (!validatePassword(passwordValue,usernameValue))
             {
                 showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
                           'Invalid Password. Must be at least 8 characters in length. One uppercase, One lowercase, One number, One special character. Must not include Username' +
                           '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                           '</div>');
-                passwordInput.textContent = "";
                 valid = false;
+                // Disable the Submit button
+                submitButton.disabled = true;
             }
             
             if (valid)
             {
-                // If validation passes, submit the form
-                signupForm.submit(); // Programmatically submit the form
+                document.getElementById("submitForm").action = "/signup"
+                document.getElementById("submitForm").submit();
             }
         });
     
