@@ -18,6 +18,17 @@
     <h1>Kub Kars and Scout Trucks Racing App</h1>
     <h4>Please Login or Signup to get started</h4>
   </div>
+
+  <div id="LoginMessages">
+    <% if (hasMessages) { %>
+      <% messages.forEach(function(message) { %>
+      <div class="alert alert-danger alert-dismissible" role="alert">
+      <p><%= message %></p>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      <% }); %>
+    <% } %>
+  </div>
   
   <div class="container-fluid p-5 bg-white text-black">
   

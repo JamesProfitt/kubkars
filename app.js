@@ -61,6 +61,8 @@ app.use(bodyParser.json());
 
 app.set('x-powered-by', false);
 
+app.use(passport.initialize());
+
 app.use(session({
     secret: 'keyboard cat',
     resave: false, // don't save session if unmodified
@@ -68,6 +70,7 @@ app.use(session({
     store: new SQLiteStore({ db: 'sessions.db', dir: path.join(__dirname,'./var/db') })
 }));
 
+app.use(passport.session());
 app.use(passport.authenticate('session'));
 
 app.get('/csrf-token', (req, res) => {
@@ -77,6 +80,7 @@ app.get('/csrf-token', (req, res) => {
 // CSRF disabled for now. I'm sure there's a way to configure it properly. I'm probably missing something.
 //app.use(csrfSynchronisedProtection);
 
+// Process Messages
 app.use(function(req, res, next) {
     var msgs = req.session.messages || [];
     res.locals.messages = msgs;
@@ -101,6 +105,7 @@ app.use('/', authRouter);
 app.use('/api', authRouter);
 app.use('/api', apiRouter);
 
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     next(createError(404));
@@ -109,9 +114,8 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
     // set locals, only providing error in development
-    res.locals.message = err.message;
+    res.locals.message = req.session.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
-    
     // render the error page
     res.status(err.status || 500);
     res.render('error');

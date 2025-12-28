@@ -11,7 +11,7 @@
   <script src="../libs/popper.min.js" type="application/javascript"></script>
   <script src="../libs/common.js" type="application/javascript"></script>
   
-<script>
+  <script>
 
     function validatePassword(password, username) {
         // At least 8 chars, one uppercase, one lowercase, one number, one special char
@@ -43,140 +43,141 @@
         appendAlert();
     }
 
-    $(document).ready(function()
+    // Define a generic method to check the username field
+    async function CheckUserNameField()
     {
-        // When the user moves focus off the username field, this method gets called.
+        const username = document.getElementById('username').value;
+        const submitButton = document.getElementById('btnsubmit');
         
-        document.getElementById('username').addEventListener('blur', async function() 
-        {
-            const username = this.value;
-            const submitButton = document.getElementById('btnsubmit');
-            
-            if (!username) return;
+        if (!username) return;
 
-            try
+        try
+        {
+            const res = await fetch('/checkuser/' + encodeURIComponent(username));
+            const data = await res.json();
+            
+            if (data.available)
             {
-                const res = await fetch('/checkuser/' + encodeURIComponent(username));
-                const data = await res.json();
                 
-                if (data.available)
+                if (!validateUsername(username))
                 {
-                    
-                    if (!validateUsername(username))
-                    {
-                        showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                                  'Invalid Username. Must be 3-20 in length. Allowed characters: a-z A-Z 0-9 _ - ' +
-                                  '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                                  '</div>');
-                        // Disable the Submit button
-                        submitButton.disabled = true;
-                    }
-                    else
-                    {
-                        // draw a success alert box
-                        showAlert('<div class="alert alert-success alert-dismissible" role="alert">' +
-                                  'User Name Available' +
-                                  '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                                  '</div>')
-                        // Enable the Submit button
-                        submitButton.disabled = false;
-                    }
+                    showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                              'Invalid Username. Must be 3-20 in length. Allowed characters: a-z A-Z 0-9 _ - ' +
+                              '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                              '</div>');
+                    // Disable the Submit button
+                    submitButton.disabled = true;
                 }
                 else
                 {
                     // draw a success alert box
-                    showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                              'That user name is already taken, please choose another' +
+                    showAlert('<div class="alert alert-success alert-dismissible" role="alert">' +
+                              'User Name Available' +
                               '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                               '</div>')
-                    // Disable the Submit button
-                    submitButton.disabled = true;
+                    // Enable the Submit button
+                    submitButton.disabled = false;
                 }
-            }
-            catch (err)
-            {
-                console.error(err);
-            }
-            
-        });
-        
-        // When the user moves focus off the password field, this method gets called.
-        
-        document.getElementById('password').addEventListener('blur', async function() 
-        {
-            const passwordValue = this.value;
-            const usernameValue = document.getElementById('username').value;
-            const submitButton = document.getElementById('btnsubmit');
-            
-            if (!passwordValue) return;
-            
-            if (!validatePassword(passwordValue,usernameValue))
-            {
-                showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                          'Invalid Password. Must be at least 8 characters in length. One uppercase, One lowercase, One number, One special character (#?!@$%^&*-). Must not include Username' +
-                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                          '</div>');
-                // Disable the Submit button
-                submitButton.disabled = true;
             }
             else
             {
-                showAlert('<div class="alert alert-success alert-dismissible" role="alert">' +
-                          'Password OK' +
+                // draw a success alert box
+                showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                          'That user name is already taken, please choose another' +
                           '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                           '</div>')
-                // Enable the Submit button
-                submitButton.disabled = false;
+                // Disable the Submit button
+                submitButton.disabled = true;
             }
-        });
+        }
+        catch (err)
+        {
+            console.error(err);
+        }
         
+    }
+
+    function CheckPWField () 
+    {
+        console.log("here");
+        const passwordValue = document.getElementById('password').value;
+        const usernameValue = document.getElementById('username').value;
+        const submitButton = document.getElementById('btnsubmit');
+        
+        if (!passwordValue) return;
+        
+        if (!validatePassword(passwordValue,usernameValue))
+        {
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      'Invalid Password. Must be at least 8 characters in length. One uppercase, One lowercase, One number, One special character (#?!@$%^&*-). Must not include Username' +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>');
+            // Disable the Submit button
+            submitButton.disabled = true;
+        }
+        else
+        {
+            showAlert('<div class="alert alert-success alert-dismissible" role="alert">' +
+                      'Password OK' +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>')
+            // Enable the Submit button
+            submitButton.disabled = false;
+        }
+    }
+    
+    $(document).ready(function()
+    {
         const signupForm = document.getElementById('submitForm');
-        
         signupForm.addEventListener('submit', function(event)
         {
             let valid = true;
             
-            event.preventDefault(); // Prevent default form submission
-            
             const usernameInput = document.getElementById('username');
             const usernameValue = usernameInput.value.trim();
-
+            
             const passwordInput = document.getElementById('password');
             const passwordValue = passwordInput.value.trim();
             
             // Do some basic checking of usernames/passwords
             if (!validateUsername(usernameValue))
             {
+                event.preventDefault(); // Prevent default form submission
                 showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
                           'Invalid Username. Must be 3-20 in length. Allowed characters: a-z A-Z 0-9 _ - ' +
                           '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                           '</div>');
                 valid = false;
-                // Disable the Submit button
-                submitButton.disabled = true;
             }
             
             if (!validatePassword(passwordValue,usernameValue))
             {
+                event.preventDefault(); // Prevent default form submission
                 showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
                           'Invalid Password. Must be at least 8 characters in length. One uppercase, One lowercase, One number, One special character. Must not include Username' +
                           '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                           '</div>');
                 valid = false;
-                // Disable the Submit button
-                submitButton.disabled = true;
             }
             
             if (valid)
             {
-                document.getElementById("submitForm").action = "/signup"
                 document.getElementById("submitForm").submit();
             }
+          
         });
-    
+        
+        // When the user moves focus off the username field, this method gets called.
+        document.getElementById('username').addEventListener('blur', CheckUserNameField);
+        
+        // When the user moves focus off the password field, this method gets called.
+        document.getElementById('password').addEventListener('blur', CheckPWField);
+        document.getElementById('password').addEventListener('change', CheckPWField);
+        
     });
-    
-</script>  
+
+
+  </script>
 </head>
 <body>
 

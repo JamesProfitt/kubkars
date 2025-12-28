@@ -147,11 +147,11 @@ router.get('/setting_up', (req, res) => {
  */
  
 router.get('/login', function(req, res, next) {
-    res.sendFile(path.join(__dirname,'../pages/login.html'));
+    res.render('login');
 });
 
 router.get('/', function(req, res, next) {
-    res.sendFile(path.join(__dirname,'../pages/login.html'));
+    res.render('login');
 });
 
 /** POST /login/password
@@ -199,11 +199,10 @@ router.post('/login/password', passport.authenticate('local', {
  * This route logs the user out.
  */
 router.post('/logout', function(req, res, next) {
-    req.logout(function(err)
-    {
-        if (err) { return next(err); }
-        res.redirect('/');
-    });
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    res.redirect('/');
+  });
 });
 
 /* GET /signup
@@ -241,27 +240,21 @@ router.post('/signup', function(req, res, next) {
           req.body.username,
           hashedPassword,
           salt
-        ], function(err) {
-          if (err) 
-          { 
-              return next(err);
-          }
-          
-          var user = {
-            id: this.lastID,
-            username: req.body.username
-          };
-          
-          req.login(user, function(err) {
-              if (err) 
-              { 
-                  return next(err);
-              }
-              res.redirect('/');
-          });
-          
+        ], function(err)
+        {
+            if (err) 
+            { 
+               return next(err);
+            }
+            else
+            {
+              passport.authenticate('local')(req,res, function() {
+                  res.redirect('/kubkars');
+              });
+            }
         });
-    });
+   });
+
 });
 
 module.exports = router;

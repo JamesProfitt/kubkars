@@ -629,7 +629,13 @@ async function GetLatestFinishedRunOffs(dbID, TrackID)
 ////////////////////////////////////////////////////////////
 // GetHeatStatsByTrack
 // Used in Monitoring
+// Changed to use a shorter version for mobile devices.
 ////////////////////////////////////////////////////////////
+
+//                "      ,a.total_heat_count" +
+//                "      ,a.finished_heats" +
+//                "      ,a.unfinished_heats" +
+//                "      ,round(cast((100.0 * a.finished_heats) / a.total_heat_count as decimal(8,2)),2) as heats_pct_complete" +
 
 async function GetHeatStatsByTrack(dbID)
 {
@@ -658,10 +664,7 @@ async function GetHeatStatsByTrack(dbID)
                 "   group by track" +
                 ") " +
                 "select a.track " + 
-                "      ,a.total_heat_count" +
-                "      ,a.finished_heats" +
-                "      ,a.unfinished_heats" +
-                "      ,round(cast((100.0 * a.finished_heats) / a.total_heat_count as decimal(8,2)),2) as heats_pct_complete" +
+                "      ,cast(a.finished_heats as varchar) + '/' + cast(a.total_heat_count as varchar) + ' (' + cast(round(cast((100.0 * a.finished_heats) / a.total_heat_count as decimal(8,2)),2) as varchar) + '%)' as summary" +
                 "  from heat_count a"
                 );
        return products.recordsets;
@@ -675,7 +678,13 @@ async function GetHeatStatsByTrack(dbID)
 ////////////////////////////////////////////////////////////
 // GetRunOffStatsByTrack
 // Used in Monitoring
+// Changed to use a shorter version for mobile devices.
 ////////////////////////////////////////////////////////////
+
+//                "      ,a.total_runoff_count" +
+//                "      ,a.finished_runoffs" +
+//                "      ,a.unfinished_runoffs" +
+//                "      ,round(cast((100.0 * a.finished_runoffs) / a.total_runoff_count as decimal(8,2)),2) as runoffs_pct_complete" +
 
 async function GetRunOffStatsByTrack(dbID)
 {
@@ -704,10 +713,7 @@ async function GetRunOffStatsByTrack(dbID)
                 "   group by track" +
                 ") " +
                 "select a.track " + 
-                "      ,a.total_runoff_count" +
-                "      ,a.finished_runoffs" +
-                "      ,a.unfinished_runoffs" +
-                "      ,round(cast((100.0 * a.finished_runoffs) / a.total_runoff_count as decimal(8,2)),2) as runoffs_pct_complete" +
+                "      ,cast(a.finished_runoffs as varchar) + '/' + cast(a.total_runoff_count as varchar) + ' (' + cast(round(cast((100.0 * a.finished_runoffs) / a.total_runoff_count as decimal(8,2)),2) as varchar) + '%)' as summary" +
                 "  from runoff_count a"
                 );
        return products.recordsets;

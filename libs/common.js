@@ -87,7 +87,7 @@ async function fetchAndGenerateTable(apiUrl, tableContainerId)
     tableContainer.appendChild(table);
 }
 
-async function getCurrentUserId() 
+async function getCurrentUserId(elementid)
 {
     try
     {
@@ -96,18 +96,15 @@ async function getCurrentUserId()
         {
             // 401 or other error
             console.warn('User not logged in');
-            return null;
         }
         const id = await res.json();
-        console.log(id);
         const userid = id.username;
-        console.log(userid);
-        return userid;
+        elementid.innerHTML = "";
+        elementid.innerHTML = userid;
     }
     catch (err) 
     {
         console.error('Fetch error:', err);
-        return null;
     }
 }
 

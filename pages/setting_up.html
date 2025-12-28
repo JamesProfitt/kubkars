@@ -447,6 +447,8 @@
 
     $(document).ready(async function() 
     {
+        var CurrentUserDiv = document.getElementById('CurrentUser');
+        getCurrentUserId(CurrentUserDiv);
         
         // Add an event listener to look for changes to the selection of track
         document.getElementById("frmTrackInput").addEventListener("change", refreshTrackData);
@@ -455,9 +457,7 @@
         $('#TrackContent').hide();
         
         var dbID = getCookie("KubKarsScoutTrucks_dbID");
-        var nmPerson = await getCurrentUserId();
-        // Put the Name on the grid
-        document.getElementById('nmPersonCell').innerHTML = htmlEncode(nmPerson)
+        var nmPerson = document.getElementById('CurrentUser').innerHTML;
         
         // Must be a 1 or 2
         if (dbID == 1 || dbID == 2) 
@@ -465,14 +465,12 @@
             // Change data source based on cookie, and update the Section based on the cookie
             if (dbID == 1) 
             {
-                document.getElementById('SectionCell').innerHTML = htmlEncode('Cubs')
                 document.getElementById('MainHeader').innerHTML = htmlEncode('Kub Kars - Setting Up')
                 var TracksUrl = window.location.origin + '/api/cubs/tracks'
             }
             
             if (dbID == 2) 
             {
-                document.getElementById('SectionCell').innerHTML = htmlEncode('Scouts')
                 document.getElementById('MainHeader').innerHTML = htmlEncode('Scout Trucks - Setting Up')
                 var TracksUrl = window.location.origin + '/api/scouts/tracks'
             }
@@ -509,8 +507,6 @@
  
   </script>
   
-  
-  
 </head>
 
 <body>
@@ -539,6 +535,8 @@
     <h1 id="MainHeader"></h1>
     <!-- Button to open the offcanvas sidebar -->
     <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button> 
+    <br><br>Logged in as: <b><span id="CurrentUser"></span></b>
+    <br><form action="/logout" method="post"><a href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
 
   <!-- Container for any alerts -->
@@ -547,18 +545,6 @@
   <!-- Main Page Container -->
   <div class="container-fluid p-5 bg-white text-black text-center" id="mainPageContent">
   
-    <!-- Info Box -->
-    <div class="container-fluid">
-      <div class="row justify-content-center">
-        <div class="col border bg-light text-end"><strong>Section:</strong></div>
-        <div class="col border" id='SectionCell'></div>
-      </div>
-      <div class="row justify-content-center">
-        <div class="col border bg-light text-end"><strong>Name:</strong></div>
-        <div class="col border" id='nmPersonCell'></div>
-      </div>
-    </div>
-    <br>
     <!-- Selector for Track -->
     <br>
     <label for="frmTrackInput"><h4>Select Track:</h4></label>
@@ -572,57 +558,6 @@
     <!-- Track Data -->
     <br>
     <div class="container" id="TrackContent">
-      
-      <!-- A heat summary at the top of the page -->
-      <div id="TrackSummary">
-        <div id="HeatSummary">
-          <h4>Heats</h4>
-          <div class="container-fluid">
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Total:</strong></div><div class="col border" id='statTotalHeats'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Finished:</strong></div><div class="col border" id='statFinishedHeats'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Unfinished:</strong></div><div class="col border" id='statUnfinishedHeats'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>% Complete:</strong></div><div class="col border" id='statHeatPercentComplete'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Current Heat:</strong></div><div class="col border" id='statCurrentHeat'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Next Heat:</strong></div><div class="col border" id='statNextHeat'></div>
-            </div>
-          </div>
-        </div>
-        <div id="RunOffSummary">
-          <h4>Run-Offs</h4>
-          <div class="container-fluid">
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Total RunOffs:</strong></div><div class="col border" id='statTotalRunOffs'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Finished:</strong></div><div class="col border" id='statFinishedRunOffs'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Unfinished:</strong></div><div class="col border" id='statUnfinishedRunOffs'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>% Complete:</strong></div><div class="col border" id='statROPercentComplete'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Current RunOff:</strong></div><div class="col border" id='statCurrentRunOff'></div>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col border bg-light text-end"><strong>Next RunOff:</strong></div><div class="col border" id='statNextRunOff'></div>
-            </div>
-          </div>
-          <br>
-        </div>
-      </div>
       
       <!-- Current Heat -->
       <!-- Not all lanes will be shown, depends on Vehicles Per Heat setting. -->
@@ -680,6 +615,58 @@
           <div class="row justify-content-center" id="NxtLane6Row">
             <div class="col border bg-light text-end"><strong>Lane 6:</strong></div><div class="col border" id='NxtLane6CarID'></div>
           </div>
+        </div>
+      </div>
+
+      <!-- A heat summary at the bottom of the page -->
+      <br>
+      <div id="TrackSummary">
+        <div id="HeatSummary">
+          <h4>Heat Summary</h4>
+          <div class="container-fluid">
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Total:</strong></div><div class="col border" id='statTotalHeats'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Finished:</strong></div><div class="col border" id='statFinishedHeats'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Unfinished:</strong></div><div class="col border" id='statUnfinishedHeats'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>% Complete:</strong></div><div class="col border" id='statHeatPercentComplete'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Current Heat:</strong></div><div class="col border" id='statCurrentHeat'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Next Heat:</strong></div><div class="col border" id='statNextHeat'></div>
+            </div>
+          </div>
+        </div>
+        <div id="RunOffSummary">
+          <h4>Run-Off Summary</h4>
+          <div class="container-fluid">
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Total RunOffs:</strong></div><div class="col border" id='statTotalRunOffs'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Finished:</strong></div><div class="col border" id='statFinishedRunOffs'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Unfinished:</strong></div><div class="col border" id='statUnfinishedRunOffs'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>% Complete:</strong></div><div class="col border" id='statROPercentComplete'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Current RunOff:</strong></div><div class="col border" id='statCurrentRunOff'></div>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><strong>Next RunOff:</strong></div><div class="col border" id='statNextRunOff'></div>
+            </div>
+          </div>
+          <br>
         </div>
       </div>
 

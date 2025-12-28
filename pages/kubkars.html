@@ -48,6 +48,7 @@
               form.classList.add('was-validated')
             }, false)
         })
+        
     })()
     
     // Function called when the form is successfully completed
@@ -139,6 +140,9 @@
     
     $(document).ready(function()
     {
+        var CurrentUserDiv = document.getElementById('CurrentUser');
+        getCurrentUserId(CurrentUserDiv);
+        
         document.getElementById("frmRoleInput").addEventListener("change", showSelectedItem);
         $('#r1').hide();
         $('#r2').hide();
@@ -153,6 +157,8 @@
   <div class="container-fluid p-5 bg-info text-white text-center">
     <h1>Kub Kars and Scout Trucks Racing App</h1>
     <h4>Please choose your role</h4>
+    <br><br>Logged in as: <b><span id="CurrentUser"></span></b>
+    <br><form action="/logout" method="post"><a href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
   
   <div class="alert alert-error collapse" role="alert" id="CookieError">

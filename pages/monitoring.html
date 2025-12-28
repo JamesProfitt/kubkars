@@ -53,6 +53,8 @@
     $(document).ready(function() 
     {
         var dbID = getCookie("KubKarsScoutTrucks_dbID");
+        var CurrentUserDiv = document.getElementById('CurrentUser');
+        getCurrentUserId(CurrentUserDiv);
         
         // Must be a 1 or 2
         if (dbID == 1 || dbID == 2) 
@@ -126,7 +128,9 @@
   <div class="container-fluid p-5 bg-info text-white text-center">
     <h1 id="MainHeader"></h1>
     <!-- Button to open the offcanvas sidebar -->
-    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button> 
+    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button>
+    <br><br>Logged in as: <b><span id="CurrentUser"></span></b>
+    <br><form action="/logout" method="post"><a href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
 
   <!-- Container for any alerts -->
