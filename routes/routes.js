@@ -66,17 +66,17 @@ router.route('/scouts/tracks').get((request, response) => {
 // heat & track
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/race/:Trackid/:HeatID').get((request, response) => {
+router.route('/cubs/race/:Trackid/:HeatID/:RunType').get((request, response) => {
 
-    dbop.GetRace(1,request.params.Trackid,request.params.HeatID)
+    dbop.GetRace(1,request.params.Trackid,request.params.HeatID,request.params.RunType)
       .then((data) => {response.json(data[0]);})
 	    .catch(err => response.status(500).send(err));
 
 })
 
-router.route('/scouts/race/:Trackid/:HeatID').get((request, response) => {
+router.route('/scouts/race/:Trackid/:HeatID/:RunType').get((request, response) => {
   
-    dbop.GetRace(2,request.params.Trackid,request.params.HeatID)
+    dbop.GetRace(2,request.params.Trackid,request.params.HeatID,request.params.RunType)
       .then((data) => {response.json(data[0]);})
   	  .catch(err => response.status(500).send(err));
 
@@ -84,6 +84,7 @@ router.route('/scouts/race/:Trackid/:HeatID').get((request, response) => {
 
 ////////////////////////////////////////////////////////////
 // Route for All Races for a Track
+// Not currently used.
 ////////////////////////////////////////////////////////////
 
 router.route('/cubs/races/:Trackid').get((request, response) => {

@@ -29,7 +29,7 @@
     function refreshTrackData()
     {
     
-        var dbID = getCookie("KubKarsScoutTrucks_dbID");
+        var dbID = sessionStorage.getItem("KubKarsScoutTrucks_dbID");
         // Refresh when a real option is selected
         if (dbID == 1 || dbID == 2) 
         {
@@ -52,7 +52,7 @@
     
     $(document).ready(function() 
     {
-        var dbID = getCookie("KubKarsScoutTrucks_dbID");
+        var dbID = sessionStorage.getItem("KubKarsScoutTrucks_dbID");
         var CurrentUserDiv = document.getElementById('CurrentUser');
         getCurrentUserId(CurrentUserDiv);
         
@@ -80,10 +80,10 @@
             {
                 // draw an alert box with the error visible
                 showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                          '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a>' +
+                          '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a>' +
                           error +
                           '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                          '</div>')
+                          '</div>');
             }
             
         } 
@@ -92,9 +92,9 @@
           
           // Show the alert
           showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                    '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>' +
+                    '  <strong>Ooops!</strong> No Section data available. <a href="/kubkars" class="alert-link">Start Over</a>' +
                     '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                    '</div>')
+                    '</div>');
         }
 
     });
@@ -125,7 +125,7 @@
     </div>
   </div>
   
-  <div class="container-fluid p-5 bg-info text-white text-center">
+  <div class="container-fluid p-4 bg-info text-white text-center">
     <h1 id="MainHeader"></h1>
     <!-- Button to open the offcanvas sidebar -->
     <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button>
@@ -137,7 +137,7 @@
   <div id="liveAlertPlaceholder"></div>
   
   <!-- Main Page Container -->
-  <div class="container-fluid p-5 bg-white text-black text-center" id="mainPageContent">
+  <div class="container-fluid p-4 bg-white text-black text-center" id="mainPageContent">
   
     <!-- A Refresh Data Button -->
     <button type="button" class="btn btn-primary" onclick="refreshTrackData()">Refresh</button>

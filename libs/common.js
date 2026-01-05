@@ -1,3 +1,8 @@
+// Cookies not used (except for authentication), but leave these here in case we use them in future.
+// Switched to SessionStorage for all the client side data we need to keep (TrackID, etc)
+// This does not need to be part of every HTTP request, so can be locally stored.
+// It is checked for sanity when passed to the server for security.
+
 function setCookie(cname, cvalue, exdays)
 {
     const d = new Date();
@@ -32,6 +37,26 @@ function htmlEncode(str)
     return String(str).replace(/[^\w. ]/gi, function(c){
         return '&#'+c.charCodeAt(0)+';';
     });
+}
+
+/**
+Taken from
+https://stackoverflow.com/questions/9790845/how-can-i-check-if-a-specific-option-exists-in-a-select-box
+*/
+function optionExists ( needle, haystack )
+{
+    var optionExists = false,
+    optionsLength = haystack.length;
+
+    while ( optionsLength-- )
+    {
+        if ( haystack.options[ optionsLength ].value === needle )
+        {
+            optionExists = true;
+            break;
+        }
+    }
+    return optionExists;
 }
 
 // Function to call an API and generate an HTML table

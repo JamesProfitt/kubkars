@@ -1,3 +1,5 @@
+require('module-alias/register');
+
 const app = require('./app')
 var http = require('http');
 const port = 80;
@@ -17,5 +19,7 @@ app.listen(port, () => {
 // Graceful shutdown
 process.on('SIGTERM', () => {
     console.log('SIGTERM received: closing server');
+    cubs_pool.close();
+    scouts_pool.close();
     server.close(() => process.exit(0));
 });

@@ -1,7 +1,3 @@
-// module.exports = {
-//   connectionString: "server=localhost;Database=SCOUT_TRUCKS;Trusted_Connection=Yes;Driver={SQL Server}"
-// };
-
 // Instead of a trusted connection, it might be safer to create a userid that has limited access
 // within the database.
 // 
@@ -16,8 +12,16 @@
 //
 // No other access should be allowed.
 
-module.exports = {
-    connectionString: "server=localhost;Database=SCOUTS_SAMPLE;Driver={SQL Server};user=node_user;password=node_user"
+const dbconfig_scouts = {
+  server: 'localhost',
+  database: 'TREVOR_DB_SCOUTS',
+  user: 'node_user',
+  password: 'node_user',
+  options: {
+    trustServerCertificate: true // for local dev / self-signed certs
+  }
 };
+
+export { dbconfig_scouts };
 
 

@@ -16,12 +16,12 @@
     // A function to show an alert when there is an error
     function showAlert(CustomInnerHTML) 
     {
-        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
         const appendAlert = () => 
         {
-            const wrapper = document.createElement('div')
-            wrapper.innerHTML = [CustomInnerHTML].join('')
-            alertPlaceholder.append(wrapper)
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = [CustomInnerHTML].join('');
+            alertPlaceholder.append(wrapper);
         }
         appendAlert();
     }
@@ -41,35 +41,39 @@
           .forEach(function (form) {
             form.addEventListener('submit', function (event) {
               if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
+                event.preventDefault();
+                event.stopPropagation();
               }
         
-              form.classList.add('was-validated')
-            }, false)
-        })
+              form.classList.add('was-validated');
+            }, false);
+        });
         
-    })()
+    })();
     
     // Function called when the form is successfully completed
     
-    function SetAndCheckCookies()
+    function SetAndCheckStorage()
     {
     
-        // Set Cookies
-        setCookie('KubKarsScoutTrucks_dbID',document.getElementById("frmSectionInput").value,1);
-        setCookie('KubKarsScoutTrucks_role',document.getElementById("frmRoleInput").value,1);
+        // Change to Local Storage
+        sessionStorage.setItem('KubKarsScoutTrucks_TrackID',document.getElementById("frmTrackInput").value);
+        sessionStorage.setItem('KubKarsScoutTrucks_dbID',document.getElementById("frmSectionInput").value);
+        sessionStorage.setItem('KubKarsScoutTrucks_role',document.getElementById("frmRoleInput").value);
         
-        // Check that setting the cookies actually worked
-        if (getCookie('KubKarsScoutTrucks_dbID') != document.getElementById("frmSectionInput").value)
+        // Check that setting the storage values actually worked
+        if (sessionStorage.getItem('KubKarsScoutTrucks_dbID') != document.getElementById("frmSectionInput").value)
         {
-            $('#CookieError').show();
             return false;
         }
         
-        if (getCookie('KubKarsScoutTrucks_role') != document.getElementById("frmRoleInput").value) 
+        if (sessionStorage.getItem('KubKarsScoutTrucks_role') != document.getElementById("frmRoleInput").value) 
         {
-            $('#CookieError').show();
+            return false;
+        }
+        
+        if (sessionStorage.getItem('KubKarsScoutTrucks_TrackID') != document.getElementById("frmTrackInput").value) 
+        {
             return false;
         }
         
@@ -79,45 +83,51 @@
     async function CheckBeforeFormSubmit()
     {
     
-        var SetAndCheck = SetAndCheckCookies();
+        var SetAndCheck = SetAndCheckStorage();
         
         if (SetAndCheck == true) 
         {
-        
+            // Get the TrackID, must be an integer
+            var TrackID = sessionStorage.getItem('KubKarsScoutTrucks_TrackID');
+            num_trackID = parseInt(TrackID);
+            
             // Get the dbID value based on the selection:
-            var dbID = getCookie('KubKarsScoutTrucks_dbID');
+            var dbID = sessionStorage.getItem('KubKarsScoutTrucks_dbID');
             
-            // Must be a 1 or 2
-            if (dbID == 1 || dbID == 2) 
+            // dbID Must be a 1 or 2, TrackID must be an integer
+            if ((dbID == 1 || dbID == 2) & Number.isInteger(num_trackID) ) 
             {
-            
-                // Change data source based on cookie, and update the Section based on the cookie
-                if (dbID == 1) 
-                {
-                    var LoginUrl = window.location.origin + '/api/cubs/login'
-                }
-                
-                if (dbID == 2)
-                {
-                    var LoginUrl = window.location.origin + '/api/scouts/login'
-                }
-    
                 if ( document.getElementById("frmRoleInput").value == "r1" )
                 {
-                    document.getElementById("frmIndex").action = "/setting_up"
+                    document.getElementById("frmIndex").action = "/setting_up";
                 }
                 else if ( document.getElementById("frmRoleInput").value == "r2" ) 
                 {
-                    document.getElementById("frmIndex").action = "/recording"
+                    document.getElementById("frmIndex").action = "/recording";
                 } 
                 else if ( document.getElementById("frmRoleInput").value == "r3" ) 
                 {
-                    document.getElementById("frmIndex").action = "/monitoring"
+                    document.getElementById("frmIndex").action = "/monitoring";
                 }
-    
+                
                 document.getElementById("frmIndex").submit();
-    
+                
             }
+            else
+            {
+                // The user must make a selection
+                showAlert('<div class="alert alert-warning alert-dismissible" role="alert">' +
+                          '  <strong>Ooops!</strong> Please finish making your selections before continuing. ' +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>');
+            }
+        }
+        else
+        {
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> There was a problem using local storage. <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a>. ' +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>');
         }
     }
     
@@ -126,15 +136,96 @@
     
     function showSelectedItem() 
     {
-        $('#r1').hide();
-        $('#r2').hide();
-        $('#r3').hide();
-      
+        document.getElementById('r1').style.display = "none";
+        document.getElementById('r2').style.display = "none";
+        document.getElementById('r3').style.display = "none";
+        
         var item = document.getElementById("frmRoleInput").value;
-      
+        
         if (item == "r1" || item == "r2" || item == "r3")
         {
-            $('#' + item).show();
+            document.getElementById(item).style.display = "block";
+        }
+    }
+    
+    // Change the track list when the section changes
+    
+    function switchSections()
+    {
+        // Clear the track selector
+        // We do this because we are connecting to two different databases, and the track list may be different
+        selector = document.getElementById("frmTrackInput");
+        
+        // Loop backwards from the last option to the second option (index 1)
+        for (let i = selector.options.length - 1; i > 0; i--) {
+            selector.remove(i);
+        }
+        
+        // Set the item in storage
+        sessionStorage.setItem('KubKarsScoutTrucks_dbID',document.getElementById("frmSectionInput").value);
+        
+        // Get the dbID value based on the selection:
+        var dbID = sessionStorage.getItem('KubKarsScoutTrucks_dbID');
+        
+        // Must be a 1 or 2
+        if (dbID == 1 || dbID == 2) 
+        {
+            
+            // Change data source based on stored value
+            if (dbID == 1) 
+            {
+                var TracksUrl = window.location.origin + '/api/cubs/tracks';
+            }
+            
+            if (dbID == 2)
+            {
+                var TracksUrl = window.location.origin + '/api/scouts/tracks';
+            }
+            
+            try 
+            {
+                // Put those Track Ids in the select dropdown.
+                // Call the function to populate the Track List
+                fetchDataAndPopulateDropdown(TracksUrl);
+            } 
+            catch (error) 
+            {
+                // draw an alert box with the error visible
+                showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                          '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a> Error Text:' +
+                          error +
+                          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                          '</div>');
+            }
+        }
+    }
+    
+    // A function to call the API to put the Track IDs in the dropdown
+    async function fetchDataAndPopulateDropdown(apiurl)
+    {
+        try
+        {
+            const response = await fetch(apiurl);
+            if (!response.ok)
+            {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            const dropdown = document.getElementById('frmTrackInput');
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.track;
+                option.textContent = item.track;
+                dropdown.appendChild(option);
+            });
+        } 
+        catch (error)
+        {
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a>. Error Text: ' +
+                      error +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>');
         }
     }
     
@@ -144,9 +235,13 @@
         getCurrentUserId(CurrentUserDiv);
         
         document.getElementById("frmRoleInput").addEventListener("change", showSelectedItem);
-        $('#r1').hide();
-        $('#r2').hide();
-        $('#r3').hide();
+        document.getElementById('r1').style.display = "none";
+        document.getElementById('r2').style.display = "none";
+        document.getElementById('r3').style.display = "none";
+        
+        // Listen for changes to the Section; this affects where we get the track listing from:
+        document.getElementById("frmSectionInput").addEventListener("change", switchSections);
+        
     });
   
   </script>
@@ -154,20 +249,14 @@
 </head>
 <body>
 
-  <div class="container-fluid p-5 bg-info text-white text-center">
+  <div class="container-fluid p-4 bg-info text-white text-center">
     <h1>Kub Kars and Scout Trucks Racing App</h1>
     <h4>Please choose your role</h4>
     <br><br>Logged in as: <b><span id="CurrentUser"></span></b>
     <br><form action="/logout" method="post"><a href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
   
-  <div class="alert alert-error collapse" role="alert" id="CookieError">
-    <span>
-    <p>There was an error when setting/checking cookies</p>
-    </span>
-  </div>
-  
-  <div class="container-fluid p-5 bg-white text-black text-center">
+  <div class="container-fluid p-4 bg-white text-black text-center">
 
     <!-- Container for any login alerts -->
     <div id="liveAlertPlaceholder"></div>
@@ -216,6 +305,13 @@
             <p>In this mode, you can keep track of how many races are finished, and how many are still pending.</p>
           </div>
         </div>
+      </div>
+      <!-- Track Selector -->
+      <div class="mb-3 row g-3">
+        <label class="visually-hidden" for="frmTrackInput">Select Track:</label>
+        <select class="form-select" id="frmTrackInput" required>
+          <option value="default" selected>Choose Track...</option>
+        </select>
       </div>
       <!-- Submit Button -->
       <div class="mb-3 row g-3">

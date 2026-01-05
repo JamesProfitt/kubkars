@@ -1,7 +1,3 @@
-// module.exports = {
-//   connectionString: "server=localhost;Database=KUB_KAR;Trusted_Connection=Yes;Driver={SQL Server}"
-// };
-
 // Instead of a trusted connection, it might be safer to create a userid that has limited access
 // within the database.
 // 
@@ -16,8 +12,20 @@
 //
 // No other access should be allowed.
 
-module.exports = {
-    connectionString: "server=localhost;Database=KUB_KAR;Driver={SQL Server};user=node_user;password=node_user"
+const dbconfig_cubs = {
+  server: 'localhost',
+  database: 'SCOUTS_SAMPLE',
+  user: 'node_user',
+  password: 'node_user',
+  options: {
+    trustServerCertificate: true // for local dev / self-signed certs
+  }
 };
+
+// This config can also be a connection string:
+// No "Driver" required
+//const dbconfig_cubs = "server=localhost;Database=KUB_KAR;user=node_user;password=node_user"
+
+export { dbconfig_cubs };
 
 

@@ -12,18 +12,63 @@
   <script src="/libs/common.js" type="application/javascript"></script>
   
   <script>
-
+    
+    // I'm aware that I mix JQuery calls with JavaScript here, notably things like:
+    // 
+    // $('#xxx).hide();
+    // and 
+    // document.getElementById(xxx)
+    //
+    // And that ideally, we would not want to mix them. 
+    // 
+    // Well, I tried using the style.display instead of show(), hide(). All my layouts pooched. Screw that. I gave up. 
+    // Why bother? One line. Thats it.
+    // I'll live with it. 
+    // 
+    // :-)
+    //
+    
     // A function to show an alert when there is an error
     function showAlert(CustomInnerHTML) 
     {
         const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
         const appendAlert = () => 
         {
-            const wrapper = document.createElement('div')
-            wrapper.innerHTML = [CustomInnerHTML].join('')
-            alertPlaceholder.append(wrapper)
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = [CustomInnerHTML].join('');
+            alertPlaceholder.append(wrapper);
         }
         appendAlert();
+    }
+    
+    function ShowTrackSelector()
+    {
+        // Returns TRUE when the div is showing
+        $('#TrackSelector').show();
+        // Change the text of the track switch button
+        document.getElementById('SwitchTracksButton').textContent = 'Hide Track Switcher';
+    }
+    
+    function HideTrackSelector()
+    {
+        // Returns TRUE when the div is showing
+        $('#TrackSelector').hide();
+        // Change the text of the track switch button
+        document.getElementById('SwitchTracksButton').textContent = 'Switch Tracks';
+    }
+    
+    function ShowHideTrackSelector()
+    {
+        // If hidden, show it, and vice-versa.
+        
+        if (document.getElementById('TrackSelector').checkVisibility() )
+        {
+            HideTrackSelector();
+        }
+        else
+        {
+            ShowTrackSelector();
+        }
     }
     
     function CleanseSignatureText(input) 
@@ -67,10 +112,10 @@
         catch (error)
         {
             showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                      '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ' +
+                      '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a> OR <a href="/kubkars" class="alert-link">Start Again</a>. Error Text: ' +
                       error +
                       '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                      '</div>')
+                      '</div>');
         }
     }
     
@@ -134,7 +179,7 @@
                 throw new Error(`HTTP error! Status: ${vph_response.status}`);
             }
             const vph_data = await vph_response.json();
-            var vehicles_per_heat = vph_data[0].VehiclesPerHeat
+            var vehicles_per_heat = vph_data[0].VehiclesPerHeat;
             
             // Vehicles Per Heat now determines the positions available in the Results Area
             // if VPH = 2, there can only be 1st and 2nd.
@@ -188,10 +233,10 @@
                 document.getElementById('CurRaceNum').innerHTML = htmlEncode(t_data[0].current_heat);
                 document.getElementById('CurRaceType').innerHTML = 'Heat';
                 
-                // Save Cookies
-                setCookie("KubKarsScoutTrucks_RaceType",1,1);
-                setCookie("KubKarsScoutTrucks_RaceTypeTxt",'Heat',1);
-                setCookie('KubKarsScoutTrucks_HeatID',htmlEncode(t_data[0].current_heat,1));
+                // Save Values
+                sessionStorage.setItem("KubKarsScoutTrucks_RaceType",1);
+                sessionStorage.setItem("KubKarsScoutTrucks_RaceTypeTxt",'Heat');
+                sessionStorage.setItem('KubKarsScoutTrucks_HeatID',htmlEncode(t_data[0].current_heat));
                 
                 // There's probably a nicer way of doing this, but this works.
                 
@@ -211,7 +256,7 @@
                 $('#CurLane6ResultRow').hide();
                 
                 // Current Heat Data
-                const ch_response = await fetch(RaceURL + '/' + t_data[0].current_heat);
+                const ch_response = await fetch(RaceURL + '/' + t_data[0].current_heat + '/1');
                 if (!ch_response.ok) 
                 {
                     throw new Error(`HTTP error! Status: ${ch_response.status}`);
@@ -222,7 +267,7 @@
                 
                 if ( vehicles_per_heat == 6 ) 
                 {
-                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(ch_data[0].lane6_carNumber + ' - ' + ch_data[0].lane6_driver);
+                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(ch_data[0].lane6_carNumber + ' - ' + ch_data[0].lane6_driver + ' (' + ch_data[0].lane6_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane6ResultSelect');
                     $('#CurLane6Row').show();
                     $('#CurLane6ResultRow').show();
@@ -230,7 +275,7 @@
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
                 {
-                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(ch_data[0].lane5_carNumber + ' - ' + ch_data[0].lane5_driver);
+                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(ch_data[0].lane5_carNumber + ' - ' + ch_data[0].lane5_driver + ' (' + ch_data[0].lane5_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane5ResultSelect');
                     $('#CurLane5Row').show();
                     $('#CurLane5ResultRow').show();
@@ -238,7 +283,7 @@
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
                 {
-                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(ch_data[0].lane4_carNumber + ' - ' + ch_data[0].lane4_driver);
+                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(ch_data[0].lane4_carNumber + ' - ' + ch_data[0].lane4_driver + ' (' + ch_data[0].lane4_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane4ResultSelect');
                     $('#CurLane4Row').show();
                     $('#CurLane4ResultRow').show();
@@ -246,7 +291,7 @@
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
                 {
-                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(ch_data[0].lane3_carNumber + ' - ' + ch_data[0].lane3_driver);
+                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(ch_data[0].lane3_carNumber + ' - ' + ch_data[0].lane3_driver + ' (' + ch_data[0].lane3_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane3ResultSelect');
                     $('#CurLane3Row').show();
                     $('#CurLane3ResultRow').show();
@@ -254,11 +299,11 @@
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
                 {
-                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(ch_data[0].lane2_carNumber + ' - ' + ch_data[0].lane2_driver);
+                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(ch_data[0].lane2_carNumber + ' - ' + ch_data[0].lane2_driver + ' (' + ch_data[0].lane2_group + ')');
                     addOptionsToSelect(vehicles_per_heat,"CurLane2ResultSelect");
                     $('#CurLane2Row').show();
                     $('#CurLane2ResultRow').show();
-                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(ch_data[0].lane1_carNumber + ' - ' + ch_data[0].lane1_driver);
+                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(ch_data[0].lane1_carNumber + ' - ' + ch_data[0].lane1_driver + ' (' + ch_data[0].lane1_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane1ResultSelect');
                     $('#CurLane1Row').show();
                     $('#CurLane1ResultRow').show();
@@ -284,10 +329,10 @@
                 document.getElementById('CurRaceNum').innerHTML = htmlEncode(t_data[0].current_runoff);
                 document.getElementById('CurRaceType').innerHTML = 'RunOff';
                 
-                // Save Cookies
-                setCookie("KubKarsScoutTrucks_RaceType",2,1);
-                setCookie("KubKarsScoutTrucks_RaceTypeTxt",'RunOff',1);
-                setCookie('KubKarsScoutTrucks_HeatID',htmlEncode(t_data[0].current_runoff,1));
+                // Save values
+                sessionStorage.setItem("KubKarsScoutTrucks_RaceType",2);
+                sessionStorage.setItem("KubKarsScoutTrucks_RaceTypeTxt",'RunOff');
+                sessionStorage.setItem('KubKarsScoutTrucks_HeatID',htmlEncode(t_data[0].current_runoff));
                 
                 // There's probably a nicer way of doing this, but this works.
                 // Hide them all
@@ -306,7 +351,7 @@
                 $('#CurLane6ResultRow').hide();
                 
                 // Current RunOff Data
-                const cr_response = await fetch(RaceURL + '/' + t_data[0].current_runoff);
+                const cr_response = await fetch(RaceURL + '/' + t_data[0].current_runoff + '/2');
                 if (!cr_response.ok) 
                 {
                     throw new Error(`HTTP error! Status: ${cr_response.status}`);
@@ -316,7 +361,7 @@
                 // Show them based on the vehicles_per_heat setting
                 if ( vehicles_per_heat == 6 ) 
                 {
-                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(cr_data[0].lane6_carNumber + ' - ' + cr_data[0].lane6_driver);
+                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(cr_data[0].lane6_carNumber + ' - ' + cr_data[0].lane6_driver + ' (' + cr_data[0].lane6_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane6ResultSelect');
                     $('#CurLane6Row').show();
                     $('#CurLane6ResultRow').show();
@@ -324,7 +369,7 @@
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
                 {
-                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(cr_data[0].lane5_carNumber + ' - ' + cr_data[0].lane5_driver);
+                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(cr_data[0].lane5_carNumber + ' - ' + cr_data[0].lane5_driver + ' (' + cr_data[0].lane5_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane5ResultSelect');
                     $('#CurLane5Row').show();
                     $('#CurLane5ResultRow').show();
@@ -332,7 +377,7 @@
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
                 {
-                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(cr_data[0].lane4_carNumber + ' - ' + cr_data[0].lane4_driver);
+                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(cr_data[0].lane4_carNumber + ' - ' + cr_data[0].lane4_driver + ' (' + cr_data[0].lane4_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane4ResultSelect');
                     $('#CurLane4Row').show();
                     $('#CurLane4ResultRow').show();
@@ -340,7 +385,7 @@
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
                 {
-                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(cr_data[0].lane3_carNumber + ' - ' + cr_data[0].lane3_driver);
+                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(cr_data[0].lane3_carNumber + ' - ' + cr_data[0].lane3_driver + ' (' + cr_data[0].lane3_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane3ResultSelect');
                     $('#CurLane3Row').show();
                     $('#CurLane3ResultRow').show();
@@ -348,11 +393,11 @@
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
                 {
-                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(cr_data[0].lane2_carNumber + ' - ' + cr_data[0].lane2_driver);
+                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(cr_data[0].lane2_carNumber + ' - ' + cr_data[0].lane2_driver + ' (' + cr_data[0].lane2_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane2ResultSelect');
                     $('#CurLane2Row').show();
                     $('#CurLane2ResultRow').show();
-                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(cr_data[0].lane1_carNumber + ' - ' + cr_data[0].lane1_driver);
+                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(cr_data[0].lane1_carNumber + ' - ' + cr_data[0].lane1_driver + ' (' + cr_data[0].lane1_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane1ResultSelect');
                     $('#CurLane1Row').show();
                     $('#CurLane1ResultRow').show();
@@ -368,10 +413,10 @@
             // Additional logic to add some visual aids (Complete/Incomplete)
             else if ( parseFloat(t_data[0].heats_pct_complete) == 100 && parseFloat(t_data[0].runoffs_pct_complete) == 100 )
             {
-                // Unset Cookies
-                setCookie("KubKarsScoutTrucks_RaceType",'',1);
-                setCookie("KubKarsScoutTrucks_RaceTypeTxt",'',1);
-                setCookie('KubKarsScoutTrucks_HeatID','',1);
+                // Unset data storage
+                sessionStorage.removeItem("KubKarsScoutTrucks_RaceType");
+                sessionStorage.removeItem("KubKarsScoutTrucks_RaceTypeTxt");
+                sessionStorage.removeItem('KubKarsScoutTrucks_HeatID');
 
                 // Hide everything not required
                 $('#HeatSummary').hide();
@@ -387,17 +432,18 @@
         catch (error) 
         {
             showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                      '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="setting_up.html" class="alert-link">Reload Page</a> OR <a href="index.html" class="alert-link">Start Again</a>. Error Text: ' +
+                      '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a> OR <a href="/kubkars" class="alert-link">Start Again</a>. Error Text: ' +
                       error +
                       '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                       '</div>');
         }
     }
 
-    function refreshTrackData()
+    async function refreshTrackData()
     {
         // item is the option that was selected, might be the default or an actual track id
         var item = document.getElementById("frmTrackInput").value;
+        sessionStorage.setItem('KubKarsScoutTrucks_TrackID',document.getElementById("frmTrackInput").value);
         
         if (item == "default")
         {
@@ -407,7 +453,7 @@
         }
         else 
         {
-            var dbID = getCookie("KubKarsScoutTrucks_dbID");
+            var dbID = sessionStorage.getItem("KubKarsScoutTrucks_dbID");
             // dbID must be 1 or 2
             if (dbID == 1 || dbID == 2) 
             {
@@ -425,9 +471,12 @@
                 }
                 // Show the Content
                 $('#TrackContent').show();
-                
+                // Hide the track selector
+                HideTrackSelector();
                 // Refresh the summary and race data
-                fetchAndPopulateRaceAndSummary(TrackSummaryURL,RaceURL,VehiclesPerHeatURL);
+                await fetchAndPopulateRaceAndSummary(TrackSummaryURL,RaceURL,VehiclesPerHeatURL);
+                // Update TrackID span element
+                document.getElementById('CurrentTrack').innerHTML = htmlEncode(item);
                 
             }
         }
@@ -568,7 +617,7 @@
         }
         else
         {
-            aResult1 = 'null'
+            aResult1 = 'null';
         }
         
         if (Number.isInteger(parseInt(document.getElementById("CurLane2ResultSelect").value))) 
@@ -585,7 +634,7 @@
         }
         else
         {
-            aResult2 = 'null'
+            aResult2 = 'null';
         }
         
         if (Number.isInteger(parseInt(document.getElementById("CurLane3ResultSelect").value))) 
@@ -602,7 +651,7 @@
         }
         else
         {
-            aResult3 = 'null'
+            aResult3 = 'null';
         }
         
         if (Number.isInteger(parseInt(document.getElementById("CurLane4ResultSelect").value))) 
@@ -619,7 +668,7 @@
         }
         else
         {
-            aResult4 = 'null'
+            aResult4 = 'null';
         }
         
         if (Number.isInteger(parseInt(document.getElementById("CurLane5ResultSelect").value))) 
@@ -636,7 +685,7 @@
         }
         else
         {
-            aResult5 = 'null'
+            aResult5 = 'null';
         }
         
         if (Number.isInteger(parseInt(document.getElementById("CurLane6ResultSelect").value))) 
@@ -653,7 +702,7 @@
         }
         else
         {
-            aResult6 = 'null'
+            aResult6 = 'null';
         }
 
         // Do the positions make sense? if VPH = 2, but one is 1000, did the other lane come 2nd? It should be 1st.
@@ -664,7 +713,7 @@
             document.getElementById('ModalTitle').innerHTML = htmlEncode('Incorrect position selected');
             document.getElementById('ErrorBoxText').innerHTML = htmlEncode('At least one DNF is present, please correct the selected positions, or rerun the race.');
             $('#ErrorBox').modal('show');
-            return;
+            return false;
         }
         
         // Did we get a tie?
@@ -736,23 +785,31 @@
         
     }
     
-    function CallSaveResults() 
+    async function CallSaveResults() 
     {
     
         try
         {
-            // Get the Cookie data
-            var dbID = getCookie("KubKarsScoutTrucks_dbID");
+            // Get the stored data
+            var dbID = sessionStorage.getItem("KubKarsScoutTrucks_dbID");
             var nmPerson =  document.getElementById('CurrentUser').innerHTML;
-            var HeatID = getCookie("KubKarsScoutTrucks_HeatID");
-            var RaceType = getCookie("KubKarsScoutTrucks_RaceType");
-            var RaceTypeTxt = getCookie("KubKarsScoutTrucks_RaceTypeTxt");
+            var HeatID = sessionStorage.getItem("KubKarsScoutTrucks_HeatID");
+            var RaceType = sessionStorage.getItem("KubKarsScoutTrucks_RaceType");
+            var RaceTypeTxt = sessionStorage.getItem("KubKarsScoutTrucks_RaceTypeTxt");
             var Signature = htmlEncode(CleanseSignatureText(nmPerson));
+            
+            // Save positions in case the save fails
+            sessionStorage.setItem("CurLane1ResultSelect",document.getElementById("CurLane1ResultSelect").value);
+            sessionStorage.setItem("CurLane2ResultSelect",document.getElementById("CurLane2ResultSelect").value);
+            sessionStorage.setItem("CurLane3ResultSelect",document.getElementById("CurLane3ResultSelect").value);
+            sessionStorage.setItem("CurLane4ResultSelect",document.getElementById("CurLane4ResultSelect").value);
+            sessionStorage.setItem("CurLane5ResultSelect",document.getElementById("CurLane5ResultSelect").value);
+            sessionStorage.setItem("CurLane6ResultSelect",document.getElementById("CurLane6ResultSelect").value);
             
             // dbID must be a 1 or 2
             if (dbID == 1 || dbID == 2) {
                 TrackID = document.getElementById("frmTrackInput").value;
-                // Change data source based on cookie, and update the Section based on the cookie
+                // Change data source based on stored data
                 if (dbID == 1) {
                     var VehiclesPerHeatURL = window.location.origin + '/api/cubs/vehicles_per_heat';
                     var SaveResultsURL = window.location.origin + '/api/cubs/saveresults/' + RaceType + '/' + TrackID + '/' + HeatID;
@@ -763,19 +820,39 @@
                 }
                 
                 // Call SaveResults
-                var SaveWorked = SaveResults(VehiclesPerHeatURL,SaveResultsURL,Signature);
+                var SaveWorked = await SaveResults(VehiclesPerHeatURL,SaveResultsURL,Signature);
+                // Refresh the page data
+                await refreshTrackData();
                 
-                // Refresh the page if the save worked, otherwise, leave what was selected until they re-submit
-                if ( SaveWorked ) {
-                  refreshTrackData();
+                // If the save worked, remove the saved positions.
+                if ( SaveWorked == true )
+                {
+                    // Remove the saved values if the save was successful
+                    sessionStorage.removeItem("CurLane1ResultSelect");
+                    sessionStorage.removeItem("CurLane2ResultSelect");
+                    sessionStorage.removeItem("CurLane3ResultSelect");
+                    sessionStorage.removeItem("CurLane4ResultSelect");
+                    sessionStorage.removeItem("CurLane5ResultSelect");
+                    sessionStorage.removeItem("CurLane6ResultSelect");
                 }
+                else
+                {
+                    // Restore what was selected after the data refreshes
+                    document.getElementById("CurLane1ResultSelect").value = sessionStorage.getItem("CurLane1ResultSelect");
+                    document.getElementById("CurLane2ResultSelect").value = sessionStorage.getItem("CurLane2ResultSelect");
+                    document.getElementById("CurLane3ResultSelect").value = sessionStorage.getItem("CurLane3ResultSelect");
+                    document.getElementById("CurLane4ResultSelect").value = sessionStorage.getItem("CurLane4ResultSelect");
+                    document.getElementById("CurLane5ResultSelect").value = sessionStorage.getItem("CurLane5ResultSelect");
+                    document.getElementById("CurLane6ResultSelect").value = sessionStorage.getItem("CurLane6ResultSelect");
+                }
+                
             }
         
         } catch (error) 
         {
             // draw an alert box with the error visible
             showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                      '  <strong>Ooops!</strong> There was an error during saving of data. You can try doing it again, or <a href="recording.html" class="alert-link">Reload Page</a>' +
+                      '  <strong>Ooops!</strong> There was an error during saving of data. You can try doing it again, or <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a>' +
                       error +
                       '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                       '</div>');
@@ -827,7 +904,6 @@
         }
         
     }
-    
     
     // This function gets the set of Heats/Runoffs to be potentially "rerun"
     // It then populates the 5 available rows in the table
@@ -921,18 +997,19 @@
         
         try
         {
-            // Get the Cookie data
-            var dbID = getCookie("KubKarsScoutTrucks_dbID");
+            // Get the stored data
+            var dbID = sessionStorage.getItem("KubKarsScoutTrucks_dbID");
             var nmPerson = document.getElementById('CurrentUser').innerHTML;
-            var HeatID = getCookie("KubKarsScoutTrucks_HeatID");
-            var RaceType = getCookie("KubKarsScoutTrucks_RaceType");
-            var RaceTypeTxt = getCookie("KubKarsScoutTrucks_RaceTypeTxt");
+            var HeatID = sessionStorage.getItem("KubKarsScoutTrucks_HeatID");
+            var RaceType = sessionStorage.getItem("KubKarsScoutTrucks_RaceType");
+            var RaceTypeTxt = sessionStorage.getItem("KubKarsScoutTrucks_RaceTypeTxt");
             var Signature = htmlEncode(CleanseSignatureText(nmPerson));
             
             // dbID must be a 1 or 2
             if (dbID == 1 || dbID == 2) {
                 TrackID = document.getElementById('frmTrackInput').value;
-                // Change data source based on cookie, and update the Section based on the cookie
+                sessionStorage.setItem('KubKarsScoutTrucks_TrackID',document.getElementById("frmTrackInput").value);
+                // Change data source based on stored data
                 if (dbID == 1) {
                     if (RaceType == 1) {
                         var LatestFinishedURL = window.location.origin + '/api/cubs/latest_finished_heats/' + TrackID;
@@ -958,7 +1035,7 @@
         {
             // draw an alert box with the error visible
             showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                      '  <strong>Ooops!</strong> There was an error during data processing. You can try doing it again, or <a href="recording.html" class="alert-link">Reload Page</a>' +
+                      '  <strong>Ooops!</strong> There was an error during data processing. You can try doing it again, or <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a>' +
                       error +
                       '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                       '</div>');
@@ -980,7 +1057,7 @@
         refreshTrackData();
     }
     
-    $(document).ready(function() 
+    $(document).ready(async function() 
     {
         var CurrentUserDiv = document.getElementById('CurrentUser');
         getCurrentUserId(CurrentUserDiv);
@@ -988,19 +1065,22 @@
         // Add an event listener to look for changes to the selection of track
         document.getElementById("frmTrackInput").addEventListener("change", refreshTrackData);
         
-        // Hide the Track Content until the user selects a track
-        $('#TrackContent').hide();
         // Hide the reruns until someone presses the button to show them
         $('#RerunTable').hide();
         
-        // Get the Cookie data
-        var dbID = getCookie("KubKarsScoutTrucks_dbID");
+        // Get the stored data
+        var dbID = sessionStorage.getItem("KubKarsScoutTrucks_dbID");
         var nmPerson = document.getElementById('CurrentUser').innerHTML;
+        
+        // Get the TrackID, must be an integer
+        var TrackID = sessionStorage.getItem('KubKarsScoutTrucks_TrackID');
+        num_trackID = parseInt(TrackID);
+        document.getElementById('CurrentTrack').innerHTML = htmlEncode(num_trackID);
         
         // dbID must be a 1 or 2
         if (dbID == 1 || dbID == 2) {
         
-            // Change data source based on cookie, and update the Section based on the cookie
+            // Change data source based on dbID
             if (dbID == 1) {
                 document.getElementById('MainHeader').innerHTML = htmlEncode('Kub Kars - Recording');
                 var TracksUrl = window.location.origin + '/api/cubs/tracks';
@@ -1015,12 +1095,38 @@
             try {
                 // Put those Track Ids in the select dropdown.
                 // Call the function to populate the Track List
-                fetchDataAndPopulateDropdown(TracksUrl);
-                // The page from now on responds to user input
+                await fetchDataAndPopulateDropdown(TracksUrl);
+                
+                if (Number.isInteger(num_trackID)) {
+                    // Make sure the option exists
+                    if ( optionExists( TrackID, document.getElementById('frmTrackInput') ) )
+                    {
+                        // Select the Option based on the stored data
+                        document.getElementById('frmTrackInput').value = num_trackID;
+                        // Raise an event to force a refresh
+                        document.getElementById('frmTrackInput').dispatchEvent(new Event('change'));
+                        // If the TrackID is set, hide the selector
+                        HideTrackSelector();
+                    }
+                    else
+                    {
+                          sessionStorage.removeItem('KubKarsScoutTrucks_TrackID');
+                          ShowTrackSelector();
+                          $('#TrackContent').hide();
+                    }
+                }
+                else
+                {
+                    // If the trackid is not set, show the selector.
+                    ShowTrackSelector();
+                    $('#TrackContent').hide();
+                }
+                
+                
             } catch (error) {
                 // draw an alert box with the error visible
                 showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                          '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="recording.html" class="alert-link">Reload Page</a>' +
+                          '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a>' +
                           error +
                           '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                           '</div>');
@@ -1030,7 +1136,7 @@
           
           // Show the alert
           showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                    '  <strong>Ooops!</strong> There was an error when setting/checking cookies. <a href="index.html" class="alert-link">Start Over</a>' +
+                    '  <strong>Ooops!</strong> No Section data available. <a href="/kubkars" class="alert-link">Start Over</a>' +
                     '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                     '</div>');
         }
@@ -1083,11 +1189,14 @@
     </div>
   </div>
 
-  <div class="container-fluid p-5 bg-warning text-black text-center">
+  <div class="container-fluid p-4 bg-warning text-black text-center">
     <h1 id="MainHeader"></h1>
     <!-- Button to open the offcanvas sidebar -->
     <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button> 
-    <br><br>Logged in as: <b><span id="CurrentUser"></span></b>
+    <!-- Button to switch tracks -->
+    <button class="btn btn-primary" type="button" id="SwitchTracksButton" onclick="ShowHideTrackSelector()">Switch Tracks</button>
+    <br><br>Current Track: <b><span id="CurrentTrack"></span></b>
+    <br>Logged in as: <b><span id="CurrentUser"></span></b>
     <br><form action="/logout" method="post"><a href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
   
@@ -1095,18 +1204,17 @@
   <div id="liveAlertPlaceholder"></div>
   
   <!-- Main Page Container -->
-  <div class="container-fluid p-5 bg-white text-black text-center" id="mainPageContent">
+  <div class="container-fluid p-4 bg-white text-black text-center" id="mainPageContent">
   
     <!-- Selector for Track -->
-    <br>
-    <h4>Select Track:</h4>
-    <select class="form-select" id="frmTrackInput" required>
-      <option value="default" selected>Choose Track...</option>
-    </select>
-    <br>
-    <!-- A Refresh Data Button -->
-    <button type="button" class="btn btn-primary" onclick="refreshTrackData()" id="RefreshButton">Refresh</button>
-    <br>
+    <div id="TrackSelector">
+      <br>
+      <label for="frmTrackInput"><h4>Select Track:</h4></label>
+      <select class="form-select" id="frmTrackInput" required>
+        <option value="default" selected>Choose Track...</option>
+      </select>
+      <br>
+    </div>
     <!-- Track Data -->
     <br>
     <div class="container" id="TrackContent">
@@ -1117,10 +1225,10 @@
         <h4>Current Race & Lane Info:</h4>
         <div class="container-fluid">
           <div class="row justify-content-center">
-            <div class="col border bg-light text-end"><strong>Race Type:</strong></div><div class="col border" id='CurRaceType'></div>
+            <div class="col border bg-light text-end"><strong>Race #:</strong></div><div class="col border" id='CurRaceNum'></div>
           </div>
           <div class="row justify-content-center">
-            <div class="col border bg-light text-end"><strong>Race #:</strong></div><div class="col border" id='CurRaceNum'></div>
+            <div class="col border bg-light text-end"><strong>Race Type:</strong></div><div class="col border" id='CurRaceType'></div>
           </div>
           <div class="row justify-content-center" id="CurLane1Row">
             <div class="col border bg-light text-end"><strong>Lane 1:</strong></div><div class="col border" id='CurLane1CarID'></div>
@@ -1143,6 +1251,11 @@
         </div>
         <br>
       </div>
+      
+      <!-- A Refresh Data Button -->
+      <button type="button" class="btn btn-primary" onclick="refreshTrackData()" id="RefreshButton">Refresh</button>
+      <br>
+      <br>
       
       <div id="CurrentRaceResults">
         <h4>Race Results:</h4>
@@ -1167,7 +1280,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Recording the results is done by the user clicking a button -->
       <!-- Verify they selected the right positions, no ties -->
       <!-- Confirm submission -->
@@ -1183,11 +1296,13 @@
         <br>
         <!-- Here we provide a way for someone to undo a result  -->
         <button type="button" class="btn btn-primary" onclick="ShowPotentialReruns()" id="OopsButton">Ooops! I need to rerun a race!</button>
-        
         <!-- Table of the last 5 races; Mixing of RunOffs and Heats is not possible -->
         <!-- Hidden until someone presses the button -->
         <div id="RerunTable">
           <div class="container-fluid">
+            <div class="row justify-content-center">
+              <div class="col border bg-light text-end"><center><strong>Unlock List</strong></center></div>
+            </div>
             <div class="row justify-content-center" id="RerunRow1">
               <div class="col border bg-light text-end" id="RR1_1"></div><div class="col border" id='RR1_2'></div>
             </div>
