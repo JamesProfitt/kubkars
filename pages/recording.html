@@ -13,6 +13,8 @@
   
   <script>
     
+    var isOpen = false;
+    
     // I'm aware that I mix JQuery calls with JavaScript here, notably things like:
     // 
     // $('#xxx).hide();
@@ -28,10 +30,139 @@
     // :-)
     //
     
+    // A function to try and auto-select a position based on the selections already in place.
+    
+    function finishSelection()
+    {
+        
+        // Possible positions always get added to Select 1:
+        var vphPossibles = [];
+        var sel = document.getElementById('CurLane1ResultSelect').options;
+        
+        for (var i=0, n=sel.length;i<n;i++) 
+        {
+             // Since we only have 6 tracks, there's only a certain number of possible values we need to check
+             // so just hardcode it.
+             if ( sel[i].value == "1" || sel[i].value == "2" || sel[i].value == "3" || sel[i].value == "4" || sel[i].value == "5" || sel[i].value == "6" )
+             {
+                  vphPossibles.push(parseInt(sel[i].value));
+             }
+        }
+        
+        // These Sn values are the values that the user selected
+        // If "default", 0 is used.
+        s1 = parseInt(document.getElementById('CurLane1ResultSelect').value) || 0;
+        s2 = parseInt(document.getElementById('CurLane2ResultSelect').value) || 0;
+        s3 = parseInt(document.getElementById('CurLane3ResultSelect').value) || 0;
+        s4 = parseInt(document.getElementById('CurLane4ResultSelect').value) || 0;
+        s5 = parseInt(document.getElementById('CurLane5ResultSelect').value) || 0;
+        s6 = parseInt(document.getElementById('CurLane6ResultSelect').value) || 0;
+        
+        var dnr_cnt = 0;
+        var pos_cnt = 0;
+        var vph = 0;
+        var max_pos = 0;
+        
+        // pos_cnt is the number of actual positions chosen
+        pos_cnt = (s1 + s2 + s3 + s4 + s5 + s6)  % 1000;
+        // dnr_cnt is the number of DNRs chosen
+        dnr_cnt = Math.round((s1 + s2 + s3 + s4 + s5 + s6) / 1000);
+        // Vehicles Per Heat is the length of the array
+        vph = vphPossibles.length;
+        // Max position that can be chosen is the vph minus the DNRs
+        max_pos = vph - dnr_cnt;
+        // Remove positions greater than the max
+        vphPossibles.splice(max_pos);
+        
+        // If s1 is a real position, remove
+        if (s1 >= 1 && s1 <= 6)
+        {
+            if (vphPossibles.indexOf(s1) > -1)
+            {
+                vphPossibles.splice(vphPossibles.indexOf(s1), 1);
+            }
+        }
+        
+        // If s2 is a real position, remove 
+        if (s2 >= 1 && s2 <= 6)
+        {
+            if (vphPossibles.indexOf(s2) > -1)
+            {
+                vphPossibles.splice(vphPossibles.indexOf(s2), 1);
+            }
+        }
+        
+        // If s3 is a real position, remove 
+        if (s3 >= 1 && s3 <= 6)
+        {
+            if (vphPossibles.indexOf(s3) > -1)
+            {
+                vphPossibles.splice(vphPossibles.indexOf(s3), 1);
+            }
+        }
+        
+        // If s4 is a real position, remove 
+        if (s4 >= 1 && s4 <= 6)
+        {
+            if (vphPossibles.indexOf(s4) > -1)
+            {
+                vphPossibles.splice(vphPossibles.indexOf(s4), 1);
+            }
+        }
+        
+        // If s5 is a real position, remove 
+        if (s5 >= 1 && s5 <= 6)
+        {
+            if (vphPossibles.indexOf(s5) > -1)
+            {
+                vphPossibles.splice(vphPossibles.indexOf(s5), 1);
+            }
+        }
+        
+        // If s6 is a real position, remove 
+        if (s6 >= 1 && s6 <= 6)
+        {
+            if (vphPossibles.indexOf(s6) > -1)
+            {
+                vphPossibles.splice(vphPossibles.indexOf(s6), 1);
+            }
+        }
+        
+        // If the remaining size of vphPossibles is 0, then it contains the final position to choose.
+        if ( vphPossibles.length === 1 )
+        {
+             // This will only select a position if none has been selected
+             if ( s1 == 0 ) {
+                  document.getElementById('CurLane1ResultSelect').value = vphPossibles[0]
+             } 
+             else
+             if ( s2 == 0 ) {
+                  document.getElementById('CurLane2ResultSelect').value = vphPossibles[0]
+             } 
+             else
+             if ( s3 == 0 ) {
+                  document.getElementById('CurLane3ResultSelect').value = vphPossibles[0]
+             } 
+             else
+             if ( s4 == 0 ) {
+                  document.getElementById('CurLane4ResultSelect').value = vphPossibles[0]
+             } 
+             else
+             if ( s5 == 0 ) {
+                  document.getElementById('CurLane5ResultSelect').value = vphPossibles[0]
+             } 
+             else
+             if ( s6 == 0 ) {
+                  document.getElementById('CurLane6ResultSelect').value = vphPossibles[0]
+             } 
+        }
+        
+    }
+    
     // A function to show an alert when there is an error
     function showAlert(CustomInnerHTML) 
     {
-        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
         const appendAlert = () => 
         {
             const wrapper = document.createElement('div');
@@ -267,44 +398,113 @@
                 
                 if ( vehicles_per_heat == 6 ) 
                 {
-                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(ch_data[0].lane6_carNumber + ' - ' + ch_data[0].lane6_driver + ' (' + ch_data[0].lane6_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane6ResultSelect');
+                    if ( ch_data[0].lane6_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane6CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane6CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane6ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane6CarID').innerHTML = htmlEncode(ch_data[0].lane6_carNumber + ' - ' + ch_data[0].lane6_driver + ' (' + ch_data[0].lane6_group + ')');
+                        document.getElementById('CurLane6CarIDNum').innerHTML = htmlEncode(ch_data[0].lane6_carNumber);
+                    }
                     $('#CurLane6Row').show();
                     $('#CurLane6ResultRow').show();
                 }
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
                 {
-                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(ch_data[0].lane5_carNumber + ' - ' + ch_data[0].lane5_driver + ' (' + ch_data[0].lane5_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane5ResultSelect');
+                    if ( ch_data[0].lane5_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane5CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane5CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane5ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane5CarID').innerHTML = htmlEncode(ch_data[0].lane5_carNumber + ' - ' + ch_data[0].lane5_driver + ' (' + ch_data[0].lane5_group + ')');
+                        document.getElementById('CurLane5CarIDNum').innerHTML = htmlEncode(ch_data[0].lane5_carNumber);
+                    }
                     $('#CurLane5Row').show();
                     $('#CurLane5ResultRow').show();
                 }
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
                 {
-                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(ch_data[0].lane4_carNumber + ' - ' + ch_data[0].lane4_driver + ' (' + ch_data[0].lane4_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane4ResultSelect');
+                    if ( ch_data[0].lane4_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane4CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane4CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane4ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane4CarID').innerHTML = htmlEncode(ch_data[0].lane4_carNumber + ' - ' + ch_data[0].lane4_driver + ' (' + ch_data[0].lane4_group + ')');
+                        document.getElementById('CurLane4CarIDNum').innerHTML = htmlEncode(ch_data[0].lane4_carNumber);
+                    
+                    }
                     $('#CurLane4Row').show();
                     $('#CurLane4ResultRow').show();
                 }
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
                 {
-                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(ch_data[0].lane3_carNumber + ' - ' + ch_data[0].lane3_driver + ' (' + ch_data[0].lane3_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane3ResultSelect');
+                    if ( ch_data[0].lane3_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane3CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane3CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane3ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane3CarID').innerHTML = htmlEncode(ch_data[0].lane3_carNumber + ' - ' + ch_data[0].lane3_driver + ' (' + ch_data[0].lane3_group + ')');
+                        document.getElementById('CurLane3CarIDNum').innerHTML = htmlEncode(ch_data[0].lane3_carNumber);
+                    }
                     $('#CurLane3Row').show();
                     $('#CurLane3ResultRow').show();
                 }
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
                 {
-                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(ch_data[0].lane2_carNumber + ' - ' + ch_data[0].lane2_driver + ' (' + ch_data[0].lane2_group + ')');
                     addOptionsToSelect(vehicles_per_heat,"CurLane2ResultSelect");
+                    addOptionsToSelect(vehicles_per_heat,'CurLane1ResultSelect');
+                    
+                    if ( ch_data[0].lane2_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane2CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane2CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane2ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane2CarID').innerHTML = htmlEncode(ch_data[0].lane2_carNumber + ' - ' + ch_data[0].lane2_driver + ' (' + ch_data[0].lane2_group + ')');
+                        document.getElementById('CurLane2CarIDNum').innerHTML = htmlEncode(ch_data[0].lane2_carNumber);
+                    }
                     $('#CurLane2Row').show();
                     $('#CurLane2ResultRow').show();
-                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(ch_data[0].lane1_carNumber + ' - ' + ch_data[0].lane1_driver + ' (' + ch_data[0].lane1_group + ')');
-                    addOptionsToSelect(vehicles_per_heat,'CurLane1ResultSelect');
+
+                    if ( ch_data[0].lane1_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane1CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane1CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane1ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane1CarID').innerHTML = htmlEncode(ch_data[0].lane1_carNumber + ' - ' + ch_data[0].lane1_driver + ' (' + ch_data[0].lane1_group + ')');
+                        document.getElementById('CurLane1CarIDNum').innerHTML = htmlEncode(ch_data[0].lane1_carNumber);
+                    }
                     $('#CurLane1Row').show();
                     $('#CurLane1ResultRow').show();
                 }
@@ -361,44 +561,110 @@
                 // Show them based on the vehicles_per_heat setting
                 if ( vehicles_per_heat == 6 ) 
                 {
-                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(cr_data[0].lane6_carNumber + ' - ' + cr_data[0].lane6_driver + ' (' + cr_data[0].lane6_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane6ResultSelect');
+                    if ( cr_data[0].lane6_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane6CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane6CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane6ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane6CarID').innerHTML = htmlEncode(cr_data[0].lane6_carNumber + ' - ' + cr_data[0].lane6_driver + ' (' + cr_data[0].lane6_group + ')');
+                        document.getElementById('CurLane6CarIDNum').innerHTML = htmlEncode(cr_data[0].lane6_carNumber);
+                    }
                     $('#CurLane6Row').show();
                     $('#CurLane6ResultRow').show();
                 }
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
                 {
-                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(cr_data[0].lane5_carNumber + ' - ' + cr_data[0].lane5_driver + ' (' + cr_data[0].lane5_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane5ResultSelect');
+                    if ( cr_data[0].lane5_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane5CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane5CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane5ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane5CarID').innerHTML = htmlEncode(cr_data[0].lane5_carNumber + ' - ' + cr_data[0].lane5_driver + ' (' + cr_data[0].lane5_group + ')');
+                        document.getElementById('CurLane5CarIDNum').innerHTML = htmlEncode(cr_data[0].lane5_carNumber);
+                    }
                     $('#CurLane5Row').show();
                     $('#CurLane5ResultRow').show();
                 }
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
                 {
-                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(cr_data[0].lane4_carNumber + ' - ' + cr_data[0].lane4_driver + ' (' + cr_data[0].lane4_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane4ResultSelect');
+                    if ( cr_data[0].lane4_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane4CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane4CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane4ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane4CarID').innerHTML = htmlEncode(cr_data[0].lane4_carNumber + ' - ' + cr_data[0].lane4_driver + ' (' + cr_data[0].lane4_group + ')');
+                        document.getElementById('CurLane4CarIDNum').innerHTML = htmlEncode(cr_data[0].lane4_carNumber);
+                    }
                     $('#CurLane4Row').show();
                     $('#CurLane4ResultRow').show();
                 }
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
                 {
-                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(cr_data[0].lane3_carNumber + ' - ' + cr_data[0].lane3_driver + ' (' + cr_data[0].lane3_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane3ResultSelect');
+                    if ( cr_data[0].lane3_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane3CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane3CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane3ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane3CarID').innerHTML = htmlEncode(cr_data[0].lane3_carNumber + ' - ' + cr_data[0].lane3_driver + ' (' + cr_data[0].lane3_group + ')');
+                        document.getElementById('CurLane3CarIDNum').innerHTML = htmlEncode(cr_data[0].lane3_carNumber);
+                    }
                     $('#CurLane3Row').show();
                     $('#CurLane3ResultRow').show();
                 }
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
                 {
-                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(cr_data[0].lane2_carNumber + ' - ' + cr_data[0].lane2_driver + ' (' + cr_data[0].lane2_group + ')');
                     addOptionsToSelect(vehicles_per_heat,'CurLane2ResultSelect');
+                    addOptionsToSelect(vehicles_per_heat,'CurLane1ResultSelect');
+                    if ( cr_data[0].lane2_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane2CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane2CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane2ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane2CarID').innerHTML = htmlEncode(cr_data[0].lane2_carNumber + ' - ' + cr_data[0].lane2_driver + ' (' + cr_data[0].lane2_group + ')');
+                        document.getElementById('CurLane2CarIDNum').innerHTML = htmlEncode(cr_data[0].lane2_carNumber);
+                    }
                     $('#CurLane2Row').show();
                     $('#CurLane2ResultRow').show();
-                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(cr_data[0].lane1_carNumber + ' - ' + cr_data[0].lane1_driver + ' (' + cr_data[0].lane1_group + ')');
-                    addOptionsToSelect(vehicles_per_heat,'CurLane1ResultSelect');
+                    if ( cr_data[0].lane1_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane1CarID').innerHTML = 'No Racer';
+                        document.getElementById('CurLane1CarIDNum').innerHTML = 'NA';
+                        // Select Did Not Race automatically
+                        document.getElementById('CurLane1ResultSelect').value = 1000;
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane1CarID').innerHTML = htmlEncode(cr_data[0].lane1_carNumber + ' - ' + cr_data[0].lane1_driver + ' (' + cr_data[0].lane1_group + ')');
+                        document.getElementById('CurLane1CarIDNum').innerHTML = htmlEncode(cr_data[0].lane1_carNumber);
+                    }
                     $('#CurLane1Row').show();
                     $('#CurLane1ResultRow').show();
                 }
@@ -482,6 +748,42 @@
         }
     }
     
+    // This function gets called when refreshing the page every X seconds
+    // We save what might have already been selected, refresh, then re-select.
+    
+    async function autoRefresh()
+    {
+        if (isOpen == false)
+        {
+            // Save any selected positions
+            sessionStorage.setItem("CurLane1ResultSelect",document.getElementById("CurLane1ResultSelect").value);
+            sessionStorage.setItem("CurLane2ResultSelect",document.getElementById("CurLane2ResultSelect").value);
+            sessionStorage.setItem("CurLane3ResultSelect",document.getElementById("CurLane3ResultSelect").value);
+            sessionStorage.setItem("CurLane4ResultSelect",document.getElementById("CurLane4ResultSelect").value);
+            sessionStorage.setItem("CurLane5ResultSelect",document.getElementById("CurLane5ResultSelect").value);
+            sessionStorage.setItem("CurLane6ResultSelect",document.getElementById("CurLane6ResultSelect").value);
+            
+            // Refresh the data
+            await refreshTrackData();
+            
+            // Restore what was selected after the data refreshes
+            document.getElementById("CurLane1ResultSelect").value = sessionStorage.getItem("CurLane1ResultSelect");
+            document.getElementById("CurLane2ResultSelect").value = sessionStorage.getItem("CurLane2ResultSelect");
+            document.getElementById("CurLane3ResultSelect").value = sessionStorage.getItem("CurLane3ResultSelect");
+            document.getElementById("CurLane4ResultSelect").value = sessionStorage.getItem("CurLane4ResultSelect");
+            document.getElementById("CurLane5ResultSelect").value = sessionStorage.getItem("CurLane5ResultSelect");
+            document.getElementById("CurLane6ResultSelect").value = sessionStorage.getItem("CurLane6ResultSelect");
+            
+            // Remove the saved values
+            sessionStorage.removeItem("CurLane1ResultSelect");
+            sessionStorage.removeItem("CurLane2ResultSelect");
+            sessionStorage.removeItem("CurLane3ResultSelect");
+            sessionStorage.removeItem("CurLane4ResultSelect");
+            sessionStorage.removeItem("CurLane5ResultSelect");
+            sessionStorage.removeItem("CurLane6ResultSelect");
+        }
+    }
+    
     async function SaveResults(VehiclesPerHeatURL,SaveResultsURL,Signature)
     {
         // This function gets called when the Save Results button is pressed
@@ -498,7 +800,7 @@
             throw new Error(`HTTP error! Status: ${vph_response.status}`);
         }
         const vph_data = await vph_response.json();
-        var vehicles_per_heat = vph_data[0].VehiclesPerHeat
+        var vehicles_per_heat = vph_data[0].VehiclesPerHeat;
         
         // Check #1: Did the user make a selection for all boxes (depending on VPH):
         // The value of the position is just an integer, 1 thru VPH
@@ -807,14 +1109,17 @@
             sessionStorage.setItem("CurLane6ResultSelect",document.getElementById("CurLane6ResultSelect").value);
             
             // dbID must be a 1 or 2
-            if (dbID == 1 || dbID == 2) {
+            if (dbID == 1 || dbID == 2) 
+            {
                 TrackID = document.getElementById("frmTrackInput").value;
                 // Change data source based on stored data
-                if (dbID == 1) {
+                if (dbID == 1) 
+                {
                     var VehiclesPerHeatURL = window.location.origin + '/api/cubs/vehicles_per_heat';
                     var SaveResultsURL = window.location.origin + '/api/cubs/saveresults/' + RaceType + '/' + TrackID + '/' + HeatID;
                 }
-                if (dbID == 2) {
+                if (dbID == 2) 
+                {
                     var VehiclesPerHeatURL = window.location.origin + '/api/scouts/vehicles_per_heat';
                     var SaveResultsURL = window.location.origin + '/api/scouts/saveresults/' + RaceType + '/' + TrackID + '/' + HeatID;
                 }
@@ -848,7 +1153,8 @@
                 
             }
         
-        } catch (error) 
+        } 
+        catch (error) 
         {
             // draw an alert box with the error visible
             showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
@@ -867,48 +1173,53 @@
     
     async function UnlockHeat(UnlockURL, Track, Heat, Signature, ButtonID) 
     {
+        // Add an "Are You Sure"
+        // Not styled at all, it is standard Javascript.
         
-        // Call the API to actually unlock the heat
-        
-        const unl_response = await fetch(UnlockURL + '/' + Track + '/' + Heat + '/' + Signature);
-        if (!unl_response.ok)
+        if (confirm("Are you sure you want to rerun this race?"))
         {
-            throw new Error(`HTTP error! Status: ${unl_response.status}`);
+            // Call the API to actually unlock the heat
+            
+            const unl_response = await fetch(UnlockURL + '/' + Track + '/' + Heat + '/' + Signature);
+            if (!unl_response.ok)
+            {
+                throw new Error(`HTTP error! Status: ${unl_response.status}`);
+            }
+            var unl_data = await unl_response.json();
+            
+            var upd_return_code = unl_data[0].return_code;
+            
+            // Verify the result
+            if ( upd_return_code == 0 )
+            {
+                // SUCCESS
+                // Change the colour to success, and disable it.
+                var element = document.getElementById(ButtonID);
+                element.classList = "";
+                element.classList.add("btn");
+                element.classList.add("btn-success");
+                element.classList.add("disabled");
+                element.innerText = 'Unlocked!';
+            }
+            else if ( upd_return_code > 0 ) 
+            {
+                // Error when unlocking, show modal.
+                document.getElementById('ModalTitle').innerHTML = htmlEncode('Error');
+                var element = document.getElementById("modalbutton");
+                element.classList = "";
+                element.classList.add("btn");
+                element.classList.add("btn-danger");
+                document.getElementById('ErrorBoxText').innerHTML = htmlEncode('Error in submission. Contact Support. Return Code from database: ' + upd_return_code);
+                $('#ErrorBox').modal('show');
+            }
         }
-        var unl_data = await unl_response.json();
-        
-        var upd_return_code = unl_data[0].return_code;
-        
-        // Verify the result
-        if ( upd_return_code == 0 )
-        {
-            // SUCCESS
-            // Change the colour to success, and disable it.
-            var element = document.getElementById(ButtonID);
-            element.classList = "";
-            element.classList.add("btn");
-            element.classList.add("btn-success");
-            element.classList.add("disabled");
-            element.innerText = 'Unlocked!';
-        }
-        else if ( upd_return_code > 0 ) 
-        {
-            // Error when unlocking, show modal.
-            document.getElementById('ModalTitle').innerHTML = htmlEncode('Error');
-            var element = document.getElementById("modalbutton");
-            element.classList = "";
-            element.classList.add("btn");
-            element.classList.add("btn-danger");
-            document.getElementById('ErrorBoxText').innerHTML = htmlEncode('Error in submission. Contact Support. Return Code from database: ' + upd_return_code);
-            $('#ErrorBox').modal('show');
-        }
-        
     }
     
     // This function gets the set of Heats/Runoffs to be potentially "rerun"
     // It then populates the 5 available rows in the table
     
-    async function fetchAndShowReruns(LatestFinishedURL,UnlockURL,RaceTypeTxt,Signature) {
+    async function fetchAndShowReruns(LatestFinishedURL,UnlockURL,RaceTypeTxt,Signature) 
+    {
     
         // Call the API
         const fin_response = await fetch(LatestFinishedURL);
@@ -947,26 +1258,35 @@
             var RerunRow_2 = 'RR' + RerunRow + '_2';
             // Make the first column just the Heat #
             document.getElementById(RerunRow_1).innerHTML = "";
-            document.getElementById(RerunRow_1).innerHTML = '<strong>' + RaceTypeTxt + ': # ' + fin_data[i].heat + '</strong>';
+            // Add the word "Latest" and an arrow to the first one, for clarity
+            if (i == 0) 
+            {
+               document.getElementById(RerunRow_1).innerHTML = "<strong>Latest &#x1F80A; </strong>";
+            }
+            document.getElementById(RerunRow_1).innerHTML = document.getElementById(RerunRow_1).innerHTML + '<strong>' + RaceTypeTxt + ': # ' + fin_data[i].heat + '</strong>';
             // Make the second column a button that calls a function to unlock that heat
             document.getElementById(RerunRow_2).innerHTML = "";
             document.getElementById(RerunRow_2).innerHTML = '<button type="button" class="btn btn-primary" onclick="UnlockHeat(' + '\'' + UnlockURL + '\'' + ',' + fin_data[i].track + ',' + fin_data[i].heat + ',' + '\'' + Signature + '\'' + ',' + '\'' + RerunRow_2 + 'btn' + '\'' + ')" id="' + RerunRow_2 + 'btn' + '">Unlock</button>';
         }
         
         // If the top 5 isn't actually 5, we hide the rows that won't have anything in them
-        if (fin_data.length == 4 ) {
+        if (fin_data.length == 4 ) 
+        {
             $('#RerunRow5').hide();
         }
-        if (fin_data.length == 3 ) {
+        if (fin_data.length == 3 ) 
+        {
             $('#RerunRow4').hide();
             $('#RerunRow5').hide();
         }
-        if (fin_data.length == 2 ) {
+        if (fin_data.length == 2 ) 
+        {
             $('#RerunRow3').hide();
             $('#RerunRow4').hide();
             $('#RerunRow5').hide();
         }
-        if (fin_data.length == 1 ) {
+        if (fin_data.length == 1 ) 
+        {
             $('#RerunRow2').hide();
             $('#RerunRow3').hide();
             $('#RerunRow4').hide();
@@ -983,7 +1303,8 @@
     // Note that the functions will not return a mixture of Heats/Runoffs; since they are
     // separate.
     
-    function ShowPotentialReruns() {
+    function ShowPotentialReruns() 
+    {
         
         // Hide the other sections to make it easier to see
         // Provide a way of "cancelling" the Ooops; show the "cancel" button
@@ -1006,24 +1327,31 @@
             var Signature = htmlEncode(CleanseSignatureText(nmPerson));
             
             // dbID must be a 1 or 2
-            if (dbID == 1 || dbID == 2) {
+            if (dbID == 1 || dbID == 2) 
+            {
                 TrackID = document.getElementById('frmTrackInput').value;
                 sessionStorage.setItem('KubKarsScoutTrucks_TrackID',document.getElementById("frmTrackInput").value);
                 // Change data source based on stored data
-                if (dbID == 1) {
-                    if (RaceType == 1) {
+                if (dbID == 1) 
+                {
+                    if (RaceType == 1) 
+                    {
                         var LatestFinishedURL = window.location.origin + '/api/cubs/latest_finished_heats/' + TrackID;
                     }
-                    if (RaceType == 2) {
+                    if (RaceType == 2) 
+                    {
                         var LatestFinishedURL = window.location.origin + '/api/cubs/latest_finished_runoffs/' + TrackID;
                     }
                     var UnlockURL = window.location.origin + '/api/cubs/unlockrace/' + RaceType;
                 }
-                if (dbID == 2) {
-                    if (RaceType == 1) {
+                if (dbID == 2) 
+                {
+                    if (RaceType == 1) 
+                    {
                         var LatestFinishedURL = window.location.origin + '/api/scouts/latest_finished_heats/' + TrackID;
                     }
-                    if (RaceType == 2) {
+                    if (RaceType == 2) 
+                    {
                         var LatestFinishedURL = window.location.origin + '/api/scouts/latest_finished_runoffs/' + TrackID;
                     }
                     var UnlockURL = window.location.origin + '/api/scouts/unlockrace/' + RaceType;
@@ -1044,7 +1372,8 @@
     }
     
     
-    function HidePotentialReruns() {
+    function HidePotentialReruns() 
+    {
     
         // Goes back to the standard view, refreshes the data
         $('#RerunTable').hide();
@@ -1057,13 +1386,137 @@
         refreshTrackData();
     }
     
+    // A function to handle Mouse/Touch events.
+    // Reference used: https://medium.com/@ijlal.tanveer294/how-to-know-if-a-select-dropdown-is-open-555a304e7dda
+    
+    function handleInput(event) 
+    {
+        let x, y;
+        
+        if (event.touches)
+        {
+            // Touch events
+            const touch = event.touches[0] || event.changedTouches[0];
+            x = touch.clientX;
+            y = touch.clientY;
+        } 
+        else
+        {
+            // Mouse events
+            x = event.clientX;
+            y = event.clientY;
+        }
+
+        select1rect = document.getElementById("CurLane1ResultSelect").getBoundingClientRect();
+        select2rect = document.getElementById("CurLane2ResultSelect").getBoundingClientRect();
+        select3rect = document.getElementById("CurLane3ResultSelect").getBoundingClientRect();
+        select4rect = document.getElementById("CurLane4ResultSelect").getBoundingClientRect();
+        select5rect = document.getElementById("CurLane5ResultSelect").getBoundingClientRect();
+        select6rect = document.getElementById("CurLane6ResultSelect").getBoundingClientRect();
+        
+        IsOnASelect = (x >= select1rect.left && x <= select1rect.right && y >= select1rect.top && y <= select1rect.bottom)
+                      || (x >= select2rect.left && x <= select2rect.right && y >= select2rect.top && y <= select2rect.bottom)
+                      || (x >= select3rect.left && x <= select3rect.right && y >= select3rect.top && y <= select3rect.bottom)
+                      || (x >= select4rect.left && x <= select4rect.right && y >= select4rect.top && y <= select4rect.bottom)
+                      || (x >= select5rect.left && x <= select5rect.right && y >= select5rect.top && y <= select5rect.bottom)
+                      || (x >= select6rect.left && x <= select6rect.right && y >= select6rect.top && y <= select6rect.bottom)
+        ;
+        
+        isOpen = IsOnASelect;
+        
+    }
+    
+    // Blur triggers when an event loses focus, so naturally, a select is not open if it lost focus.
+    function selectBlurHandle(event) 
+    {
+        isOpen = false;
+    }
+    
+    // If the user pressed a key to simulate selection
+    function selectKeyHandle(event) 
+    {
+        if (event.key === 'Enter' || event.keyCode === 13 || event.key === ' ' || event.keyCode === 32)
+        {
+            isOpen = true;
+        }
+    }
+    
     $(document).ready(async function() 
     {
         var CurrentUserDiv = document.getElementById('CurrentUser');
         getCurrentUserId(CurrentUserDiv);
         
+        // Add event listeners to the main document so that things off the control flip the switch
+        document.addEventListener('mousedown', handleInput);
+        document.addEventListener('click', handleInput);
+        document.addEventListener('blur', selectBlurHandle);
+        document.addEventListener('keydown', selectKeyHandle);
+        document.addEventListener('touchmove', handleInput);
+        document.addEventListener('touchstart', handleInput);
+        document.addEventListener('mousemove', handleInput);
+        
+        // Add event listeners to the selects so that we know when the select is opened
+        document.getElementById("CurLane1ResultSelect").addEventListener('mousedown', handleInput);
+        document.getElementById("CurLane1ResultSelect").addEventListener('click', handleInput);
+        document.getElementById("CurLane1ResultSelect").addEventListener('blur', selectBlurHandle);
+        document.getElementById("CurLane1ResultSelect").addEventListener('keydown', selectKeyHandle);
+        document.getElementById("CurLane1ResultSelect").addEventListener('touchmove', handleInput);
+        document.getElementById("CurLane1ResultSelect").addEventListener('touchstart', handleInput);
+        document.getElementById("CurLane1ResultSelect").addEventListener('mousemove', handleInput);
+        
+        document.getElementById("CurLane2ResultSelect").addEventListener('mousedown', handleInput);
+        document.getElementById("CurLane2ResultSelect").addEventListener('click', handleInput);
+        document.getElementById("CurLane2ResultSelect").addEventListener('blur', selectBlurHandle);
+        document.getElementById("CurLane2ResultSelect").addEventListener('keydown', selectKeyHandle);
+        document.getElementById("CurLane2ResultSelect").addEventListener('touchmove', handleInput);
+        document.getElementById("CurLane2ResultSelect").addEventListener('touchstart', handleInput);
+        document.getElementById("CurLane2ResultSelect").addEventListener('mousemove', handleInput);
+
+        document.getElementById("CurLane3ResultSelect").addEventListener('mousedown', handleInput);
+        document.getElementById("CurLane3ResultSelect").addEventListener('click', handleInput);
+        document.getElementById("CurLane3ResultSelect").addEventListener('blur', selectBlurHandle);
+        document.getElementById("CurLane3ResultSelect").addEventListener('keydown', selectKeyHandle);
+        document.getElementById("CurLane3ResultSelect").addEventListener('touchmove', handleInput);
+        document.getElementById("CurLane3ResultSelect").addEventListener('touchstart', handleInput);
+        document.getElementById("CurLane3ResultSelect").addEventListener('mousemove', handleInput);
+
+        document.getElementById("CurLane4ResultSelect").addEventListener('mousedown', handleInput);
+        document.getElementById("CurLane4ResultSelect").addEventListener('click', handleInput);
+        document.getElementById("CurLane4ResultSelect").addEventListener('blur', selectBlurHandle);
+        document.getElementById("CurLane4ResultSelect").addEventListener('keydown', selectKeyHandle);
+        document.getElementById("CurLane4ResultSelect").addEventListener('touchmove', handleInput);
+        document.getElementById("CurLane4ResultSelect").addEventListener('touchstart', handleInput);
+        document.getElementById("CurLane4ResultSelect").addEventListener('mousemove', handleInput);
+
+        document.getElementById("CurLane5ResultSelect").addEventListener('mousedown', handleInput);
+        document.getElementById("CurLane5ResultSelect").addEventListener('click', handleInput);
+        document.getElementById("CurLane5ResultSelect").addEventListener('blur', selectBlurHandle);
+        document.getElementById("CurLane5ResultSelect").addEventListener('keydown', selectKeyHandle);
+        document.getElementById("CurLane5ResultSelect").addEventListener('touchmove', handleInput);
+        document.getElementById("CurLane5ResultSelect").addEventListener('touchstart', handleInput);
+        document.getElementById("CurLane5ResultSelect").addEventListener('mousemove', handleInput);
+
+        document.getElementById("CurLane6ResultSelect").addEventListener('mousedown', handleInput);
+        document.getElementById("CurLane6ResultSelect").addEventListener('click', handleInput);
+        document.getElementById("CurLane6ResultSelect").addEventListener('blur', selectBlurHandle);
+        document.getElementById("CurLane6ResultSelect").addEventListener('keydown', selectKeyHandle);
+        document.getElementById("CurLane6ResultSelect").addEventListener('touchmove', handleInput);
+        document.getElementById("CurLane6ResultSelect").addEventListener('touchstart', handleInput);
+        document.getElementById("CurLane6ResultSelect").addEventListener('mousemove', handleInput);
+        
+        // Add a listener for auto-selecting the result
+        document.getElementById("CurLane1ResultSelect").addEventListener('change', finishSelection);
+        document.getElementById("CurLane2ResultSelect").addEventListener('change', finishSelection);
+        document.getElementById("CurLane3ResultSelect").addEventListener('change', finishSelection);
+        document.getElementById("CurLane4ResultSelect").addEventListener('change', finishSelection);
+        document.getElementById("CurLane5ResultSelect").addEventListener('change', finishSelection);
+        document.getElementById("CurLane6ResultSelect").addEventListener('change', finishSelection);
+        
         // Add an event listener to look for changes to the selection of track
         document.getElementById("frmTrackInput").addEventListener("change", refreshTrackData);
+        
+        // Add a simple timer for refreshing
+        setInterval(autoRefresh, 30000);
         
         // Hide the reruns until someone presses the button to show them
         $('#RerunTable').hide();
@@ -1078,26 +1531,32 @@
         document.getElementById('CurrentTrack').innerHTML = htmlEncode(num_trackID);
         
         // dbID must be a 1 or 2
-        if (dbID == 1 || dbID == 2) {
+        if (dbID == 1 || dbID == 2) 
+        {
         
             // Change data source based on dbID
-            if (dbID == 1) {
+            if (dbID == 1) 
+            {
                 document.getElementById('MainHeader').innerHTML = htmlEncode('Kub Kars - Recording');
                 var TracksUrl = window.location.origin + '/api/cubs/tracks';
                 var VehiclesPerHeatURL = window.location.origin + '/api/cubs/vehicles_per_heat';
             }
-            if (dbID == 2) {
+            
+            if (dbID == 2) 
+            {
                 document.getElementById('MainHeader').innerHTML = htmlEncode('Scout Trucks - Recording');
                 var TracksUrl = window.location.origin + '/api/scouts/tracks';
                 var VehiclesPerHeatURL = window.location.origin + '/api/scouts/vehicles_per_heat';
             }
             
-            try {
+            try 
+            {
                 // Put those Track Ids in the select dropdown.
                 // Call the function to populate the Track List
                 await fetchDataAndPopulateDropdown(TracksUrl);
                 
-                if (Number.isInteger(num_trackID)) {
+                if (Number.isInteger(num_trackID)) 
+                {
                     // Make sure the option exists
                     if ( optionExists( TrackID, document.getElementById('frmTrackInput') ) )
                     {
@@ -1121,9 +1580,9 @@
                     ShowTrackSelector();
                     $('#TrackContent').hide();
                 }
-                
-                
-            } catch (error) {
+            } 
+            catch (error) 
+            {
                 // draw an alert box with the error visible
                 showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
                           '  <strong>Ooops!</strong> There was an error during retrieval of data. <a href="javascript:;" onclick="reload()" class="alert-link">Reload Page</a>' +
@@ -1131,14 +1590,14 @@
                           '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                           '</div>');
             }
-            
-        } else {
-          
-          // Show the alert
-          showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                    '  <strong>Ooops!</strong> No Section data available. <a href="/kubkars" class="alert-link">Start Over</a>' +
-                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                    '</div>');
+        } 
+        else 
+        {
+            // Show the alert
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> No Section data available. <a href="/kubkars" class="alert-link">Start Over</a>' +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>');
         }
 
     });
@@ -1195,9 +1654,9 @@
     <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button> 
     <!-- Button to switch tracks -->
     <button class="btn btn-primary" type="button" id="SwitchTracksButton" onclick="ShowHideTrackSelector()">Switch Tracks</button>
-    <br><br>Current Track: <b><span id="CurrentTrack"></span></b>
+    <br>Current Track: <b><span id="CurrentTrack"></span></b>
     <br>Logged in as: <b><span id="CurrentUser"></span></b>
-    <br><form action="/logout" method="post"><a href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
+    <br><form action="/logout" method="post"><a class='text-black' href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
   
   <!-- Container for any alerts -->
@@ -1261,22 +1720,22 @@
         <h4>Race Results:</h4>
         <div class="container-fluid">
           <div class="row justify-content-center" id="CurLane1ResultRow">
-            <div class="col border bg-light text-end"><strong>Lane 1:</strong></div><div class="col border" id='CurLane1Result'><select class="form-select form-select-sm" id="CurLane1ResultSelect"></select></div>
+            <div class="col border bg-light text-end"><strong>Lane 1 (Car #<span id="CurLane1CarIDNum"></span>):</strong></div><div class="col border" id='CurLane1Result'><select class="form-select form-select-sm" id="CurLane1ResultSelect"></select></div>
           </div>
           <div class="row justify-content-center" id="CurLane2ResultRow">
-            <div class="col border bg-light text-end"><strong>Lane 2:</strong></div><div class="col border" id='CurLane2Result'><select class="form-select form-select-sm" id="CurLane2ResultSelect"></select></div>
+            <div class="col border bg-light text-end"><strong>Lane 2 (Car #<span id="CurLane2CarIDNum"></span>):</strong></div><div class="col border" id='CurLane2Result'><select class="form-select form-select-sm" id="CurLane2ResultSelect"></select></div>
           </div>
           <div class="row justify-content-center" id="CurLane3ResultRow">
-            <div class="col border bg-light text-end"><strong>Lane 3:</strong></div><div class="col border" id='CurLane3Result'><select class="form-select form-select-sm" id="CurLane3ResultSelect"></select></div>
+            <div class="col border bg-light text-end"><strong>Lane 3 (Car #<span id="CurLane3CarIDNum"></span>):</strong></div><div class="col border" id='CurLane3Result'><select class="form-select form-select-sm" id="CurLane3ResultSelect"></select></div>
           </div>
           <div class="row justify-content-center" id="CurLane4ResultRow">
-            <div class="col border bg-light text-end"><strong>Lane 4:</strong></div><div class="col border" id='CurLane4Result'><select class="form-select form-select-sm" id="CurLane4ResultSelect"></select></div>
+            <div class="col border bg-light text-end"><strong>Lane 4 (Car #<span id="CurLane4CarIDNum"></span>):</strong></div><div class="col border" id='CurLane4Result'><select class="form-select form-select-sm" id="CurLane4ResultSelect"></select></div>
           </div>
           <div class="row justify-content-center" id="CurLane5ResultRow">
-            <div class="col border bg-light text-end"><strong>Lane 5:</strong></div><div class="col border" id='CurLane5Result'><select class="form-select form-select-sm" id="CurLane5ResultSelect"></select></div>
+            <div class="col border bg-light text-end"><strong>Lane 5 (Car #<span id="CurLane5CarIDNum"></span>):</strong></div><div class="col border" id='CurLane5Result'><select class="form-select form-select-sm" id="CurLane5ResultSelect"></select></div>
           </div>
           <div class="row justify-content-center" id="CurLane6ResultRow">
-            <div class="col border bg-light text-end"><strong>Lane 6:</strong></div><div class="col border" id='CurLane6Result'><select class="form-select form-select-sm" id="CurLane6ResultSelect"></select></div>
+            <div class="col border bg-light text-end"><strong>Lane 6 (Car #<span id="CurLane6CarIDNum"></span>):</strong></div><div class="col border" id='CurLane6Result'><select class="form-select form-select-sm" id="CurLane6ResultSelect"></select></div>
           </div>
         </div>
       </div>

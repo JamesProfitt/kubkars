@@ -564,15 +564,18 @@
                           '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                           '</div>');
             }
+            
+            // Auto Refresh every 30s
+            setInterval(refreshTrackData, 30000);
         }
         else 
         {
           
-          // Show the alert
-          showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
-                    '  <strong>Ooops!</strong> No Section data available. <a href="/kubkars" class="alert-link">Start Over</a>' +
-                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
-                    '</div>');
+            // Show the alert
+            showAlert('<div class="alert alert-danger alert-dismissible" role="alert">' +
+                      '  <strong>Ooops!</strong> No Section data available. <a href="/kubkars" class="alert-link">Start Over</a>' +
+                      '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                      '</div>');
         }
 
     });
@@ -603,15 +606,15 @@
     </div>
   </div>
   
-  <div class="container-fluid p-4 bg-info text-white text-center">
+  <div class="container-fluid p-4 bg-primary text-white text-center">
     <h1 id="MainHeader"></h1>
     <!-- Button to open the offcanvas sidebar -->
-    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button>
+    <button class="btn btn-secondary text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button>
     <!-- Button to switch tracks -->
-    <button class="btn btn-primary" type="button" id="SwitchTracksButton" onclick="ShowHideTrackSelector()">Switch Tracks</button>
-    <br><br>Current Track: <b><span id="CurrentTrack"></span></b>
+    <button class="btn btn-secondary text-white" type="button" id="SwitchTracksButton" onclick="ShowHideTrackSelector()">Switch Tracks</button>
+    <br>Current Track: <b><span id="CurrentTrack"></span></b>
     <br>Logged in as: <b><span id="CurrentUser"></span></b>
-    <br><form action="/logout" method="post"><a href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
+    <br><form action="/logout" method="post"><a class='text-white' href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
 
   <!-- Container for any alerts -->

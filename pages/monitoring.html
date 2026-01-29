@@ -16,32 +16,31 @@
     // A function to show an alert when there is an error
     function showAlert(CustomInnerHTML) 
     {
-        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
         const appendAlert = () => 
         {
-            const wrapper = document.createElement('div')
-            wrapper.innerHTML = [CustomInnerHTML].join('')
-            alertPlaceholder.append(wrapper)
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = [CustomInnerHTML].join('');
+            alertPlaceholder.append(wrapper);
         }
         appendAlert();
     }
 
     function refreshTrackData()
     {
-    
         var dbID = sessionStorage.getItem("KubKarsScoutTrucks_dbID");
         // Refresh when a real option is selected
         if (dbID == 1 || dbID == 2) 
         {
             if (dbID == 1)
             {
-                var HeatStatsURL = window.location.origin + '/api/cubs/heatstats'
-                var RunOffStatsURL = window.location.origin + '/api/cubs/runoffstats'
+                var HeatStatsURL = window.location.origin + '/api/cubs/heatstats';
+                var RunOffStatsURL = window.location.origin + '/api/cubs/runoffstats';
             }
             if (dbID == 2)
             {
-                var HeatStatsURL = window.location.origin + '/api/scouts/heatstats'
-                var RunOffStatsURL = window.location.origin + '/api/scouts/runoffstats'
+                var HeatStatsURL = window.location.origin + '/api/scouts/heatstats';
+                var RunOffStatsURL = window.location.origin + '/api/scouts/runoffstats';
             }
             // Refresh the summary and race data
             fetchAndGenerateTable(HeatStatsURL,'HeatSummary');
@@ -62,11 +61,11 @@
             // Change data source based on cookie, and update the Section based on the cookie
             if (dbID == 1) 
             {
-                document.getElementById('MainHeader').innerHTML = htmlEncode('Kub Kars - Monitoring')
+                document.getElementById('MainHeader').innerHTML = htmlEncode('Kub Kars - Monitoring');
             }
             if (dbID == 2) 
             {
-                document.getElementById('MainHeader').innerHTML = htmlEncode('Scout Trucks - Monitoring')
+                document.getElementById('MainHeader').innerHTML = htmlEncode('Scout Trucks - Monitoring');
             }
             
             try 
@@ -74,7 +73,8 @@
                 // Put those Track Ids in the select dropdown.
                 // Call the function to populate the Track List
                 refreshTrackData();
-                // The page from now on responds to user input
+                // This line sets up an auto-refresh of 30 seconds
+                setInterval(refreshTrackData, 30000);
             } 
             catch (error) 
             {
@@ -125,12 +125,12 @@
     </div>
   </div>
   
-  <div class="container-fluid p-4 bg-info text-white text-center">
+  <div class="container-fluid p-4 bg-success text-white text-center">
     <h1 id="MainHeader"></h1>
     <!-- Button to open the offcanvas sidebar -->
     <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button>
-    <br><br>Logged in as: <b><span id="CurrentUser"></span></b>
-    <br><form action="/logout" method="post"><a href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
+    <br>Logged in as: <b><span id="CurrentUser"></span></b>
+    <br><form action="/logout" method="post"><a class='text-white' href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
 
   <!-- Container for any alerts -->

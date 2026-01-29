@@ -80,13 +80,14 @@
         return true;
     }
     
-    async function CheckBeforeFormSubmit()
+    function CheckBeforeFormSubmit()
     {
     
         var SetAndCheck = SetAndCheckStorage();
         
         if (SetAndCheck == true) 
         {
+        
             // Get the TrackID, must be an integer
             var TrackID = sessionStorage.getItem('KubKarsScoutTrucks_TrackID');
             num_trackID = parseInt(TrackID);
@@ -94,8 +95,11 @@
             // Get the dbID value based on the selection:
             var dbID = sessionStorage.getItem('KubKarsScoutTrucks_dbID');
             
-            // dbID Must be a 1 or 2, TrackID must be an integer
-            if ((dbID == 1 || dbID == 2) & Number.isInteger(num_trackID) ) 
+            // Get the role
+            var vrole = sessionStorage.getItem('KubKarsScoutTrucks_role');
+            
+            // dbID Must be a 1 or 2, TrackID must be an integer, Role must be r1, r2, r3
+            if ((dbID == 1 || dbID == 2) & Number.isInteger(num_trackID) & (vrole == "r1" || vrole == "r2" || vrole == "r3"))
             {
                 if ( document.getElementById("frmRoleInput").value == "r1" )
                 {
@@ -111,7 +115,6 @@
                 }
                 
                 document.getElementById("frmIndex").submit();
-                
             }
             else
             {
@@ -136,15 +139,17 @@
     
     function showSelectedItem() 
     {
-        document.getElementById('r1').style.display = "none";
-        document.getElementById('r2').style.display = "none";
-        document.getElementById('r3').style.display = "none";
-        
-        var item = document.getElementById("frmRoleInput").value;
+        var e = document.getElementById("frmRoleInput");
+        var item = e.value;
         
         if (item == "r1" || item == "r2" || item == "r3")
         {
+            document.getElementById('ModalTitle').innerHTML = e.options[e.selectedIndex].text;
+            document.getElementById('r1').style.display = "none";
+            document.getElementById('r2').style.display = "none";
+            document.getElementById('r3').style.display = "none";
             document.getElementById(item).style.display = "block";
+            $('#RoleWarningBox').modal('show');
         }
     }
     
@@ -249,10 +254,42 @@
 </head>
 <body>
 
+  <!-- Modal box, shows the warning of what the roles do -->
+  <div class="modal" id="RoleWarningBox">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title" id="ModalTitle"></h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="collapse" id="r1">
+            <p>You will be responsible for making sure the right cars are placed at the head of the track</p>
+            <p>This app will tell you who is racing, and who is up next.</p>
+            <p>You <b>will not</b> be able to record results in this mode.</p>
+          </div>
+          <div class="collapse" id="r2">
+            <p>You will be responsible for making sure the right results are recorded for each race.</p>
+            <p>Keep an eye on which lane finishes 1st, 2nd or 3rd, and make sure you record it before moving on to the next race.</p>
+          </div>
+          <div class="collapse" id="r3">
+            <p>In this mode, you can keep track of how many races are finished, and how many are still pending.</p>
+          </div>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="modalbutton">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="container-fluid p-4 bg-info text-white text-center">
     <h1>Kub Kars and Scout Trucks Racing App</h1>
     <h4>Please choose your role</h4>
-    <br><br>Logged in as: <b><span id="CurrentUser"></span></b>
+    <br>Logged in as: <b><span id="CurrentUser"></span></b>
     <br><form action="/logout" method="post"><a href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
   
@@ -286,24 +323,6 @@
         </select>
         <div class="invalid-feedback">
           Please choose a role.
-        </div>
-        <div class="collapse" id="r1">
-          <div class="col-sm bg-warning text-black">
-            <p>You will be responsible for making sure the right cars are placed at the head of the track</p>
-            <p>This app will tell you who is racing, and who is up next.</p>
-            <p>You won't be able to record results in this mode.</p>
-          </div>
-        </div>
-        <div class="collapse" id="r2">
-          <div class="col-sm bg-warning text-black">
-            <p>You will be responsible for making sure the right results are recorded for each race.</p>
-            <p>Keep an eye on which lane finishes 1st, 2nd or 3rd, and make sure you record it before moving on to the next race.</p>
-          </div>
-        </div>
-        <div class="collapse" id="r3">
-          <div class="col-sm bg-warning text-black">
-            <p>In this mode, you can keep track of how many races are finished, and how many are still pending.</p>
-          </div>
         </div>
       </div>
       <!-- Track Selector -->

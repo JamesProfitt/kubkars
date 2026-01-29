@@ -31,14 +31,14 @@
     // A function to show an alert when there is an error
     function showAlert(CustomInnerHTML) 
     {
-        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
         // Clear previous alerts, keep the latest
         alertPlaceholder.innerHTML = "";
         const appendAlert = () => 
         {
-            const wrapper = document.createElement('div')
-            wrapper.innerHTML = [CustomInnerHTML].join('')
-            alertPlaceholder.append(wrapper)
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = [CustomInnerHTML].join('');
+            alertPlaceholder.append(wrapper);
         }
         appendAlert();
     }
@@ -129,7 +129,7 @@
     $(document).ready(function()
     {
         const signupForm = document.getElementById('submitForm');
-        signupForm.addEventListener('submit', function(event)
+        signupForm.addEventListener('submit', function(event);
         {
             let valid = true;
             
