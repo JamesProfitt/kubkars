@@ -193,32 +193,84 @@
 
                 if ( vehicles_per_heat == 6 )
                 {
-                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(ch_data[0].lane6_carNumber + ' - ' + ch_data[0].lane6_driver + ' (' + ch_data[0].lane6_group + ')');
+                    if (ch_data[0].lane6_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane6CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane6CarID').innerHTML = htmlEncode(ch_data[0].lane6_carNumber + ' - ' + ch_data[0].lane6_driver + ' (' + ch_data[0].lane6_group + ')');
+                    }
+                    
                     $('#CurLane6Row').show();
                 }
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
                 {
-                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(ch_data[0].lane5_carNumber + ' - ' + ch_data[0].lane5_driver + ' (' + ch_data[0].lane5_group + ')');
+                    
+                    if (ch_data[0].lane5_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane5CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane5CarID').innerHTML = htmlEncode(ch_data[0].lane5_carNumber + ' - ' + ch_data[0].lane5_driver + ' (' + ch_data[0].lane5_group + ')');
+                    }
+                    
                     $('#CurLane5Row').show();
                 }
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ){
-                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(ch_data[0].lane4_carNumber + ' - ' + ch_data[0].lane4_driver + ' (' + ch_data[0].lane4_group + ')');
+                    
+                    if (ch_data[0].lane4_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane4CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane4CarID').innerHTML = htmlEncode(ch_data[0].lane4_carNumber + ' - ' + ch_data[0].lane4_driver + ' (' + ch_data[0].lane4_group + ')');
+                    }
+                    
                     $('#CurLane4Row').show();
                 }
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
                 {
-                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(ch_data[0].lane3_carNumber + ' - ' + ch_data[0].lane3_driver + ' (' + ch_data[0].lane3_group + ')');
+                    
+                    if (ch_data[0].lane3_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane3CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane3CarID').innerHTML = htmlEncode(ch_data[0].lane3_carNumber + ' - ' + ch_data[0].lane3_driver + ' (' + ch_data[0].lane3_group + ')');
+                    }
+                    
                     $('#CurLane3Row').show();
                 }
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 )
                 {
-                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(ch_data[0].lane2_carNumber + ' - ' + ch_data[0].lane2_driver + ' (' + ch_data[0].lane2_group + ')');
+                    if (ch_data[0].lane2_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane2CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane2CarID').innerHTML = htmlEncode(ch_data[0].lane2_carNumber + ' - ' + ch_data[0].lane2_driver + ' (' + ch_data[0].lane2_group + ')');
+                    }
+                    
                     $('#CurLane2Row').show();
-                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(ch_data[0].lane1_carNumber + ' - ' + ch_data[0].lane1_driver + ' (' + ch_data[0].lane1_group + ')');
+                    
+                    if (ch_data[0].lane1_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane1CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane1CarID').innerHTML = htmlEncode(ch_data[0].lane1_carNumber + ' - ' + ch_data[0].lane1_driver + ' (' + ch_data[0].lane1_group + ')');
+                    }
+                    
                     $('#CurLane1Row').show();
                 }
                 
@@ -255,33 +307,81 @@
                     
                     if ( vehicles_per_heat == 6 ) 
                     {
-                        document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nh_data[0].lane6_carNumber + ' - ' + nh_data[0].lane6_driver + ' (' + nh_data[0].lane6_group + ')');
+                        if (nh_data[0].lane6_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane6CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nh_data[0].lane6_carNumber + ' - ' + nh_data[0].lane6_driver + ' (' + nh_data[0].lane6_group + ')');
+                        }
+                        
                         $('#NxtLane6Row').show();
                     }
                     
                     if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
                     {
-                        document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nh_data[0].lane5_carNumber + ' - ' + nh_data[0].lane5_driver + ' (' + nh_data[0].lane5_group + ')');
+                        if (nh_data[0].lane5_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane5CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nh_data[0].lane5_carNumber + ' - ' + nh_data[0].lane5_driver + ' (' + nh_data[0].lane5_group + ')');
+                        }
                         $('#NxtLane5Row').show();
                     }
                         
                     if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
                     {
-                        document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nh_data[0].lane4_carNumber + ' - ' + nh_data[0].lane4_driver + ' (' + nh_data[0].lane4_group + ')');
+                        if (nh_data[0].lane4_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane4CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nh_data[0].lane4_carNumber + ' - ' + nh_data[0].lane4_driver + ' (' + nh_data[0].lane4_group + ')');
+                        }
+                        
                         $('#NxtLane4Row').show();
                     }
                         
                     if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
                     {
-                        document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nh_data[0].lane3_carNumber + ' - ' + nh_data[0].lane3_driver + ' (' + nh_data[0].lane3_group + ')');
+                        if (nh_data[0].lane3_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane3CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nh_data[0].lane3_carNumber + ' - ' + nh_data[0].lane3_driver + ' (' + nh_data[0].lane3_group + ')');
+                        }
+                        
                         $('#NxtLane3Row').show();
                     }
                         
                     if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
                     {
-                        document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nh_data[0].lane2_carNumber + ' - ' + nh_data[0].lane2_driver + ' (' + nh_data[0].lane2_group + ')');
+                        if (nh_data[0].lane2_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane2CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nh_data[0].lane2_carNumber + ' - ' + nh_data[0].lane2_driver + ' (' + nh_data[0].lane2_group + ')');
+                        }
+                        
                         $('#NxtLane2Row').show();
-                        document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nh_data[0].lane1_carNumber + ' - ' + nh_data[0].lane1_driver + ' (' + nh_data[0].lane1_group + ')');
+                        
+                        if (nh_data[0].lane1_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane1CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nh_data[0].lane1_carNumber + ' - ' + nh_data[0].lane1_driver + ' (' + nh_data[0].lane1_group + ')');
+                        }
+                        
                         $('#NxtLane1Row').show();
                     }
 
@@ -326,33 +426,82 @@
 
                 if ( vehicles_per_heat == 6 ) 
                 {
-                    document.getElementById('CurLane6CarID').innerHTML = htmlEncode(cr_data[0].lane6_carNumber + ' - ' + cr_data[0].lane6_driver + ' (' + cr_data[0].lane6_group + ')');
+                    if (cr_data[0].lane6_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane6CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane6CarID').innerHTML = htmlEncode(cr_data[0].lane6_carNumber + ' - ' + cr_data[0].lane6_driver + ' (' + cr_data[0].lane6_group + ')');
+                    }
+                    
                     $('#CurLane6Row').show();
                 }
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
                 {
-                    document.getElementById('CurLane5CarID').innerHTML = htmlEncode(cr_data[0].lane5_carNumber + ' - ' + cr_data[0].lane5_driver + ' (' + cr_data[0].lane5_group + ')');
+                    if (cr_data[0].lane5_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane5CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane5CarID').innerHTML = htmlEncode(cr_data[0].lane5_carNumber + ' - ' + cr_data[0].lane5_driver + ' (' + cr_data[0].lane5_group + ')');
+                    }
+                    
                     $('#CurLane5Row').show();
                 }
                 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
                 {
-                    document.getElementById('CurLane4CarID').innerHTML = htmlEncode(cr_data[0].lane4_carNumber + ' - ' + cr_data[0].lane4_driver + ' (' + cr_data[0].lane4_group + ')');
+                    if (cr_data[0].lane4_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane4CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane4CarID').innerHTML = htmlEncode(cr_data[0].lane4_carNumber + ' - ' + cr_data[0].lane4_driver + ' (' + cr_data[0].lane4_group + ')');
+                    }
+                    
                     $('#CurLane4Row').show();
                 }
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
                 {
-                    document.getElementById('CurLane3CarID').innerHTML = htmlEncode(cr_data[0].lane3_carNumber + ' - ' + cr_data[0].lane3_driver + ' (' + cr_data[0].lane3_group + ')');
+                    if (cr_data[0].lane3_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane3CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane3CarID').innerHTML = htmlEncode(cr_data[0].lane3_carNumber + ' - ' + cr_data[0].lane3_driver + ' (' + cr_data[0].lane3_group + ')');
+                    }
+                    
                     $('#CurLane3Row').show();
                 }
 
                 if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 )
                 {
-                    document.getElementById('CurLane2CarID').innerHTML = htmlEncode(cr_data[0].lane2_carNumber + ' - ' + cr_data[0].lane2_driver + ' (' + cr_data[0].lane2_group + ')');
+                    if (cr_data[0].lane2_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane2CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane2CarID').innerHTML = htmlEncode(cr_data[0].lane2_carNumber + ' - ' + cr_data[0].lane2_driver + ' (' + cr_data[0].lane2_group + ')');
+                    }
+                    
                     $('#CurLane2Row').show();
-                    document.getElementById('CurLane1CarID').innerHTML = htmlEncode(cr_data[0].lane1_carNumber + ' - ' + cr_data[0].lane1_driver + ' (' + cr_data[0].lane1_group + ')');
+                    
+                    if (cr_data[0].lane1_carNumber == -1 )
+                    {
+                        document.getElementById('CurLane1CarID').innerHTML = 'No Racer';
+                    }
+                    else
+                    {
+                        document.getElementById('CurLane1CarID').innerHTML = htmlEncode(cr_data[0].lane1_carNumber + ' - ' + cr_data[0].lane1_driver + ' (' + cr_data[0].lane1_group + ')');
+                    }
+                    
                     $('#CurLane1Row').show();
                 }
 
@@ -391,33 +540,76 @@
                     
                     if ( vehicles_per_heat == 6 ) 
                     {
-                        document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nr_data[0].lane6_carNumber + ' - ' + nr_data[0].lane6_driver + ' (' + nr_data[0].lane6_group + ')');
+                        if (nr_data[0].lane6_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane6CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane6CarID').innerHTML = htmlEncode(nr_data[0].lane6_carNumber + ' - ' + nr_data[0].lane6_driver + ' (' + nr_data[0].lane6_group + ')');
+                        }
                         $('#NxtLane6Row').show();
                     }
                     
                     if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 ) 
                     {
-                        document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nr_data[0].lane5_carNumber + ' - ' + nr_data[0].lane5_driver + ' (' + nr_data[0].lane5_group + ')');
+                        if (nr_data[0].lane5_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane5CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane5CarID').innerHTML = htmlEncode(nr_data[0].lane5_carNumber + ' - ' + nr_data[0].lane5_driver + ' (' + nr_data[0].lane5_group + ')');
+                        }
                         $('#NxtLane5Row').show();
                     }
                         
                     if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 ) 
                     {
-                        document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nr_data[0].lane4_carNumber + ' - ' + nr_data[0].lane4_driver + ' (' + nr_data[0].lane4_group + ')');
+                        if (nr_data[0].lane4_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane4CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane4CarID').innerHTML = htmlEncode(nr_data[0].lane4_carNumber + ' - ' + nr_data[0].lane4_driver + ' (' + nr_data[0].lane4_group + ')');
+                        }
                         $('#NxtLane4Row').show();
                     }
                         
                     if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 ) 
                     {
-                        document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nr_data[0].lane3_carNumber + ' - ' + nr_data[0].lane3_driver + ' (' + nr_data[0].lane3_group + ')');
+                        if (nr_data[0].lane3_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane3CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane3CarID').innerHTML = htmlEncode(nr_data[0].lane3_carNumber + ' - ' + nr_data[0].lane3_driver + ' (' + nr_data[0].lane3_group + ')');
+                        }
                         $('#NxtLane3Row').show();
                     }
                         
                     if ( vehicles_per_heat == 6 || vehicles_per_heat == 5 || vehicles_per_heat == 4 || vehicles_per_heat == 3 || vehicles_per_heat == 2 ) 
                     {
-                        document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nr_data[0].lane2_carNumber + ' - ' + nr_data[0].lane2_driver + ' (' + nr_data[0].lane2_group + ')');
+                        if (nr_data[0].lane2_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane2CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane2CarID').innerHTML = htmlEncode(nr_data[0].lane2_carNumber + ' - ' + nr_data[0].lane2_driver + ' (' + nr_data[0].lane2_group + ')');
+                        }
                         $('#NxtLane2Row').show();
-                        document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nr_data[0].lane1_carNumber + ' - ' + nr_data[0].lane1_driver + ' (' + nr_data[0].lane1_group + ')');
+                        
+                        if (nr_data[0].lane1_carNumber == -1 )
+                        {
+                            document.getElementById('NxtLane1CarID').innerHTML = 'No Racer';
+                        }
+                        else
+                        {
+                            document.getElementById('NxtLane1CarID').innerHTML = htmlEncode(nr_data[0].lane1_carNumber + ' - ' + nr_data[0].lane1_driver + ' (' + nr_data[0].lane1_group + ')');
+                        }
                         $('#NxtLane1Row').show();
                     }
 
@@ -481,16 +673,15 @@
                 // Show the Content
                 $('#TrackContent').show();
                 // Hide the track selector
-                ShowHideTrackSelector();
+                HideTrackSelector();
                 // Refresh the summary and race data
                 fetchAndPopulateRaceAndSummary(TrackSummaryURL,RaceURL,VehiclesPerHeatURL);
                 // Update TrackID span element
                 document.getElementById('CurrentTrack').innerHTML = htmlEncode(item);
-
             }
         }
     }
-
+    
     $(document).ready(async function() 
     {
         var CurrentUserDiv = document.getElementById('CurrentUser');
