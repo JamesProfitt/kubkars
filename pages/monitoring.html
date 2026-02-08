@@ -123,6 +123,10 @@
       <a href="/monitoring" class="btn btn-primary">Monitoring</a> 
       <p>
     </div>
+    <div class="offcanvas-bottom text-center">
+      <form action="/logout" method="post"><a class='btn btn-danger' href="javascript:;" onclick="parentNode.submit();">Log out</a></form> 
+      <p>
+    </div>
   </div>
   
   <div class="container-fluid p-4 bg-success text-white text-center">
@@ -130,7 +134,6 @@
     <!-- Button to open the offcanvas sidebar -->
     <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#RoleSwitcher">Switch Role</button>
     <br>Logged in as: <b><span id="CurrentUser"></span></b>
-    <br><form action="/logout" method="post"><a class='text-white' href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
 
   <!-- Container for any alerts -->

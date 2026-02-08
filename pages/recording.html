@@ -1646,6 +1646,10 @@
       <a href="/monitoring" class="btn btn-primary">Monitoring</a> 
       <p>
     </div>
+    <div class="offcanvas-bottom text-center">
+      <form action="/logout" method="post"><a class='btn btn-danger' href="javascript:;" onclick="parentNode.submit();">Log out</a></form> 
+      <p>
+    </div>
   </div>
 
   <div class="container-fluid p-4 bg-warning text-black text-center">
@@ -1656,7 +1660,6 @@
     <button class="btn btn-primary" type="button" id="SwitchTracksButton" onclick="ShowHideTrackSelector()">Switch Tracks</button>
     <br>Current Track: <b><span id="CurrentTrack"></span></b>
     <br>Logged in as: <b><span id="CurrentUser"></span></b>
-    <br><form action="/logout" method="post"><a class='text-black' href="javascript:;" onclick="parentNode.submit();">Log out</a></form>
   </div>
   
   <!-- Container for any alerts -->
