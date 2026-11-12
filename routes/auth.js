@@ -108,22 +108,22 @@ passport.deserializeUser(function(user, cb) {
 // kubkars is the main page
 router.get('/kubkars', (req, res) => {
     if (!req.isAuthenticated()) return res.redirect('/login');
-    res.sendFile(path.join(__dirname,'../pages/kubkars.html'));
+    res.sendFile(path.join(__dirname,'..','pages','kubkars.html'));
 });
 
 router.get('/monitoring', (req, res) => {
     if (!req.isAuthenticated()) return res.redirect('/login');
-    res.sendFile(path.join(__dirname,'../pages/monitoring.html'));
+    res.sendFile(path.join(__dirname,'..','pages','monitoring.html'));
 });
 
 router.get('/recording', (req, res) => {
     if (!req.isAuthenticated()) return res.redirect('/login');
-    res.sendFile(path.join(__dirname,'../pages/recording.html'));
+    res.sendFile(path.join(__dirname,'..','pages','recording.html'));
 });
 
 router.get('/setting_up', (req, res) => {
     if (!req.isAuthenticated()) return res.redirect('/login');
-    res.sendFile(path.join(__dirname,'../pages/setting_up.html'));
+    res.sendFile(path.join(__dirname,'..','pages','setting_up.html'));
 });
 
 
@@ -214,7 +214,7 @@ router.post('/logout', function(req, res, next) {
  * will be sent to the `POST /signup` route.
  */
 router.get('/signup', function(req, res, next) {
-    res.sendFile(path.join(__dirname,'../pages/signup.html'));
+    res.sendFile(path.join(__dirname,'..','pages','signup.html'));
 });
 
 /* POST /signup

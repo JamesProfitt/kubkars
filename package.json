@@ -3,36 +3,46 @@
   "version": "0.0.0",
   "private": true,
   "description": "Kub Kars and Scout Trucks Web App",
+  "homepage": "https://github.com/JamesProfitt/kubkars#readme",
+  "bugs": {
+    "url": "https://github.com/JamesProfitt/kubkars/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JamesProfitt/kubkars.git"
+  },
+  "license": "Unlicense",
   "author": {
     "name": "James Profitt",
     "email": "james.r.profitt@gmail.com"
   },
-  "license": "Unlicense",
+  "main": "app.js",
   "scripts": {
     "start": "node ./bin/run_on_start"
   },
   "dependencies": {
-    "body-parser": "^2.2.0",
+    "body-parser": "^2.2.2",
     "connect-sqlite3": "^0.9.16",
-    "cookie": "^1.0.2",
+    "cookie": "^1.1.1",
     "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "csrf-sync": "^4.2.1",
     "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "express-session": "^1.18.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "fs": "^0.0.1-security",
     "helmet": "^8.1.0",
-    "http-errors": "^2.0.0",
-    "mime-types": "^3.0.1",
-    "module-alias": "^2.2.3",
-    "morgan": "^1.10.1",
-    "msnodesqlv8": "^5.1.1",
+    "http-errors": "^2.0.1",
+    "mime-types": "^3.0.2",
+    "module-alias": "^2.3.4",
+    "msnodesqlv8": "^5.1.5",
     "mssql": "^12.2.0",
     "nocache": "^4.0.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
+    "pino": "^10.4.0",
+    "tar": "^7.5.22",
     "url": "^0.11.4",
     "util": "^0.12.5"
   },

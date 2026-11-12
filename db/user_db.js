@@ -5,9 +5,9 @@ var mkdirp = require('mkdirp');
 var crypto = require('crypto');
 const path = require('path');
 
-mkdirp.sync(path.join(__dirname,'../var/db'));
+mkdirp.sync(path.join(__dirname,'..','var','db'));
 
-var userdb = new sqlite3.Database(path.join(__dirname,'../var/db/users.db'));
+var userdb = new sqlite3.Database(path.join(__dirname,'..','var','db','users.db'));
 
 userdb.serialize(function()
 {

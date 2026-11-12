@@ -4,13 +4,24 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var cors = require('cors');
 var passport = require('passport');
-var logger = require('morgan');
 var util = require('util');
+const AppError = require('./AppError');
 //var helmet = require('helmet');
 var bodyParser = require('body-parser');
 const path = require('path');
 const nocache = require('nocache');
+const pino = require('pino');
 
+// "Level" is a number, so return "INFO" instead of 30, etc
+const logger = pino({
+  formatters: {
+    level(label) {
+      return { level: label } 
+    }
+  }
+})
+
+const errorHandler = require('./errorHandler');
 const { csrfSync } = require("csrf-sync");
 
 const {
@@ -33,7 +44,6 @@ var authRouter = require('@routes/auth');
 var apiRouter = require('@routes/routes');
 
 var app = express();
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -46,10 +56,9 @@ app.set('view engine', 'ejs');
 //  }
 //}));
 
-
 app.use(nocache());
 app.use(cors());
-app.use(logger('dev'));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -62,10 +71,10 @@ app.set('x-powered-by', false);
 app.use(passport.initialize());
 
 app.use(session({
-    secret: 'keyboard cat',
+    secret: process.env.SESSION_SECRET,
     resave: false, // don't save session if unmodified
     saveUninitialized: false, // don't create session until something stored
-    store: new SQLiteStore({ db: 'sessions.db', dir: path.join(__dirname,'./var/db') })
+    store: new SQLiteStore({ db: 'sessions.db', dir: path.join(__dirname,'var','db') })
 }));
 
 app.use(passport.session());
@@ -78,7 +87,21 @@ app.get('/csrf-token', (req, res) => {
 // CSRF disabled for now. I'm sure there's a way to configure it properly. I'm probably missing something.
 //app.use(csrfSynchronisedProtection);
 
-// Process Messages
+// Logging
+app.use(function(req, res, next) {
+  logger.info({
+    url: req.url,
+    user: req.user,
+    method: req.method,
+    status: res.status,
+    status_code: res.status_code,
+    path: req.path,
+    query: req.query,
+  });
+  next();
+});
+
+// Process Messages   
 app.use(function(req, res, next) {
     var msgs = req.session.messages || [];
     res.locals.messages = msgs;
@@ -103,20 +126,11 @@ app.use('/', authRouter);
 app.use('/api', authRouter);
 app.use('/api', apiRouter);
 
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    next(createError(404));
+  next(createError(404));
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = req.session.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-    // render the error page
-    res.status(err.status || 500);
-    res.render('error');
-});
+app.use(errorHandler);
 
 module.exports = app;

@@ -1,4 +1,12 @@
 const sql = require('mssql');
+const pino = require('pino');
+const logger = pino({
+  formatters: {
+    level(label) {
+      return { level: label } 
+    }
+  }
+})
 
 const { dbconfig_cubs } = require('@config/dbconfig_cubs');
 const { dbconfig_scouts } = require('@config/dbconfig_scouts');
@@ -11,12 +19,12 @@ const scouts_pool = new sql.ConnectionPool(dbconfig_scouts);
 
 cubs_pool.connect().then(function(cubs_pool) {
   
-    console.log('Cubs Connected');
+    logger.info('Cubs Connected');
     
     return new Promise(resolve => {
       setTimeout(() => {
-        console.log('5 second timeout, running query')
-        console.log(cubs_pool.healthy ? 'cubs pool is healthy' : 'cubs pool is unhealthy')
+        logger.info('5 second timeout, running query')
+        logger.info(cubs_pool.healthy ? 'cubs pool is healthy' : 'cubs pool is unhealthy')
         resolve(cubs_pool)
       }, 5000)
    
@@ -26,23 +34,23 @@ cubs_pool.connect().then(function(cubs_pool) {
   
     // run a simple SQL query, log the result set if successful or the error if not, return the pool
     
-    console.log('Cubs Query: ');
-    return cubs_pool.request().query('SELECT DB_NAME()').then(result => console.log(result.recordset)).catch(e => {
+    logger.info('Cubs Query: ');
+    return cubs_pool.request().query('SELECT DB_NAME()').then(result => logger.info('Query Result: ' + JSON.stringify(result.recordset))).catch(e => {
 
-        console.error('cubs query error', e)
+        logger.error('cubs query error: ' + e)
 
     }).then(() => cubs_pool)
 
 }).then(cubs_pool => {
   
-    console.log(cubs_pool.healthy ? 'cubs pool is healthy' : 'cubs pool is unhealthy')
+    logger.info(cubs_pool.healthy ? 'cubs pool is healthy' : 'cubs pool is unhealthy')
     // close the pool
     //return cubs_pool ? cubs_pool.close() : null
     return cubs_pool;
     
 }).catch(function(err){
   
-    console.log('Error creating the cubs pool: ', err);
+    logger.error('Error creating the cubs pool: ' + err);
 
 });
 
@@ -50,12 +58,12 @@ cubs_pool.connect().then(function(cubs_pool) {
 
 scouts_pool.connect().then(function(pool) {
   
-    console.log('Scouts Connected');
+    logger.info('Scouts Connected');
     
     return new Promise(resolve => {
       setTimeout(() => {
-        console.log('5 second timeout, running query')
-        console.log(scouts_pool.healthy ? 'scouts pool is healthy' : 'scouts pool is unhealthy')
+        logger.info('5 second timeout, running query')
+        logger.info(scouts_pool.healthy ? 'scouts pool is healthy' : 'scouts pool is unhealthy')
         resolve(scouts_pool)
       }, 5000)
    
@@ -65,23 +73,23 @@ scouts_pool.connect().then(function(pool) {
   
     // run a simple SQL query, log the result set if successful or the error if not, return the pool
     
-    console.log('Scouts Query: ');
-    return scouts_pool.request().query('SELECT DB_NAME()').then(result => console.log(result.recordset)).catch(e => {
+    logger.info('Scouts Query: ');
+    return scouts_pool.request().query('SELECT DB_NAME()').then(result => logger.info('Query Result: ' + JSON.stringify(result.recordset))).catch(e => {
 
-        console.error('scouts query error', e)
+        logger.error('scouts query error: ' + e)
 
     }).then(() => scouts_pool)
 
 }).then(scouts_pool => {
   
-    console.log(scouts_pool.healthy ? 'scouts pool is healthy' : 'scouts pool is unhealthy')
+    logger.info(scouts_pool.healthy ? 'scouts pool is healthy' : 'scouts pool is unhealthy')
     // close the pool
     //return scouts_pool ? scouts_pool.close() : null
     return scouts_pool;
     
 }).catch(function(err){
   
-    console.log('Error creating the scouts pool: ', err);
+    logger.error('Error creating the scouts pool: ' + err);
 
 });
 
@@ -131,7 +139,7 @@ async function getVehiclesPerHeat(dbID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -167,7 +175,7 @@ async function getTracks(dbID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -294,7 +302,7 @@ async function GetRace(dbID, TrackID, HeatID, RunType)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -405,7 +413,7 @@ async function GetAllRaces(dbID, TrackID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -480,7 +488,7 @@ async function GetUnfinishedHeats(dbID, TrackID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -555,7 +563,7 @@ async function GetUnfinishedRunOffs(dbID, TrackID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -600,7 +608,7 @@ async function CountUnfinishedHeats(dbID, TrackID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -644,7 +652,7 @@ async function CountUnfinishedRunOffs(dbID, TrackID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -690,7 +698,7 @@ async function GetLatestFinishedHeats(dbID, TrackID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -736,7 +744,7 @@ async function GetLatestFinishedRunOffs(dbID, TrackID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -787,7 +795,7 @@ async function GetHeatStatsByTrack(dbID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -838,7 +846,7 @@ async function GetRunOffStatsByTrack(dbID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -927,7 +935,7 @@ async function GetTrackSummaryStats(dbID,TrackID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -1004,7 +1012,7 @@ async function GetSummaryStats(dbID)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -1071,7 +1079,7 @@ async function UnlockRace(dbID, RaceType, TrackID, HeatID, Signature)
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 
@@ -1179,7 +1187,7 @@ async function SaveResults(dbID, RaceType, TrackID, HeatID, Result1, Result2, Re
     }
     catch(error)
     {
-        console.log(error);
+        logger.error(error);
     }
 }
 

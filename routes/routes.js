@@ -2,6 +2,26 @@ const express = require('express');
 var router = express.Router();
 var dbop = require('@db/db_operations');
 
+const pino = require('pino');
+const logger = pino({
+  formatters: {
+    level(label) {
+      return { level: label } 
+    }
+  }
+})
+
+function routeTimer(req, res, next) {
+  const start = process.hrtime.bigint();
+  // Listen for the response to finish
+  res.on('finish', () => {
+    const end = process.hrtime.bigint();
+    const durationMs = Number(end - start) / 1e6; // Convert nanoseconds to milliseconds
+    logger.info(`ROUTE_PERFORMANCE|${req.originalUrl}|${durationMs.toFixed(3)}`);
+  });
+  next();
+}
+
 ////////////////////////////////////////////////////////////
 //// 
 //// DATA SOURCE SELECTION (dbID)
@@ -18,7 +38,7 @@ var dbop = require('@db/db_operations');
 // VehiclesPerHeat
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/vehicles_per_heat').get((request, response) => {
+router.route('/cubs/vehicles_per_heat').all(routeTimer).get((request, response) => {
 
     dbop.getVehiclesPerHeat(1)
       .then((data) => {response.json(data[0]);})
@@ -26,7 +46,7 @@ router.route('/cubs/vehicles_per_heat').get((request, response) => {
   
 })
 
-router.route('/scouts/vehicles_per_heat').get((request, response) => {
+router.route('/scouts/vehicles_per_heat').all(routeTimer).get((request, response) => {
 
     dbop.getVehiclesPerHeat(2)
       .then((data) => {response.json(data[0]);})
@@ -42,7 +62,7 @@ router.route('/scouts/vehicles_per_heat').get((request, response) => {
 // the one they are using
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/tracks').get((request, response) => {
+router.route('/cubs/tracks').all(routeTimer).get((request, response) => {
 
     dbop.getTracks(1)
       .then((data) => {response.json(data[0]);})
@@ -50,7 +70,7 @@ router.route('/cubs/tracks').get((request, response) => {
 
 })
 
-router.route('/scouts/tracks').get((request, response) => {
+router.route('/scouts/tracks').all(routeTimer).get((request, response) => {
 
     dbop.getTracks(2)
       .then((data) => {response.json(data[0]);})
@@ -66,7 +86,7 @@ router.route('/scouts/tracks').get((request, response) => {
 // heat & track
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/race/:Trackid/:HeatID/:RunType').get((request, response) => {
+router.route('/cubs/race/:Trackid/:HeatID/:RunType').all(routeTimer).get((request, response) => {
 
     dbop.GetRace(1,request.params.Trackid,request.params.HeatID,request.params.RunType)
       .then((data) => {response.json(data[0]);})
@@ -74,7 +94,7 @@ router.route('/cubs/race/:Trackid/:HeatID/:RunType').get((request, response) => 
 
 })
 
-router.route('/scouts/race/:Trackid/:HeatID/:RunType').get((request, response) => {
+router.route('/scouts/race/:Trackid/:HeatID/:RunType').all(routeTimer).get((request, response) => {
   
     dbop.GetRace(2,request.params.Trackid,request.params.HeatID,request.params.RunType)
       .then((data) => {response.json(data[0]);})
@@ -84,23 +104,22 @@ router.route('/scouts/race/:Trackid/:HeatID/:RunType').get((request, response) =
 
 ////////////////////////////////////////////////////////////
 // Route for All Races for a Track
-// Not currently used.
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/races/:Trackid').get((request, response) => {
+router.route('/cubs/races/:Trackid').all(routeTimer).get((request, response) => {
   
     dbop.GetAllRaces(1,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
 	    .catch(err => response.status(500).send(err));
-    
+
 })
 
-router.route('/scouts/races/:Trackid').get((request, response) => {
+router.route('/scouts/races/:Trackid').all(routeTimer).get((request, response) => {
   
     dbop.GetAllRaces(2,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
 	    .catch(err => response.status(500).send(err));
-    
+
 })
 
 ////////////////////////////////////////////////////////////
@@ -111,7 +130,7 @@ router.route('/scouts/races/:Trackid').get((request, response) => {
 // heat & track
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/unfinished_heats/:Trackid').get((request, response) => {
+router.route('/cubs/unfinished_heats/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetUnfinishedHeats(1,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -119,7 +138,7 @@ router.route('/cubs/unfinished_heats/:Trackid').get((request, response) => {
 
 })
 
-router.route('/scouts/unfinished_heats/:Trackid').get((request, response) => {
+router.route('/scouts/unfinished_heats/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetUnfinishedHeats(2,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -135,7 +154,7 @@ router.route('/scouts/unfinished_heats/:Trackid').get((request, response) => {
 // heat & track
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/unfinished_runoffs/:Trackid').get((request, response) => {
+router.route('/cubs/unfinished_runoffs/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetUnfinishedRunOffs(1,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -143,7 +162,7 @@ router.route('/cubs/unfinished_runoffs/:Trackid').get((request, response) => {
 
 })
 
-router.route('/scouts/unfinished_runoffs/:Trackid').get((request, response) => {
+router.route('/scouts/unfinished_runoffs/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetUnfinishedRunOffs(2,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -159,7 +178,7 @@ router.route('/scouts/unfinished_runoffs/:Trackid').get((request, response) => {
 // heat & track
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/count_unfinished_heats/:Trackid').get((request, response) => {
+router.route('/cubs/count_unfinished_heats/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.CountUnfinishedHeats(1,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -167,7 +186,7 @@ router.route('/cubs/count_unfinished_heats/:Trackid').get((request, response) =>
 
 })
 
-router.route('/scouts/count_unfinished_heats/:Trackid').get((request, response) => {
+router.route('/scouts/count_unfinished_heats/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.CountUnfinishedHeats(2,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -183,7 +202,7 @@ router.route('/scouts/count_unfinished_heats/:Trackid').get((request, response) 
 // heat & track
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/count_unfinished_runoffs/:Trackid').get((request, response) => {
+router.route('/cubs/count_unfinished_runoffs/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.CountUnfinishedRunOffs(1,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -191,7 +210,7 @@ router.route('/cubs/count_unfinished_runoffs/:Trackid').get((request, response) 
 
 })
 
-router.route('/scouts/count_unfinished_runoffs/:Trackid').get((request, response) => {
+router.route('/scouts/count_unfinished_runoffs/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.CountUnfinishedRunOffs(2,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -206,7 +225,7 @@ router.route('/scouts/count_unfinished_runoffs/:Trackid').get((request, response
 // Gets the most recent 5 RunOffs to be unlocked
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/latest_finished_heats/:Trackid').get((request, response) => {
+router.route('/cubs/latest_finished_heats/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetLatestFinishedHeats(1,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -214,7 +233,7 @@ router.route('/cubs/latest_finished_heats/:Trackid').get((request, response) => 
 
 })
 
-router.route('/scouts/latest_finished_heats/:Trackid').get((request, response) => {
+router.route('/scouts/latest_finished_heats/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetLatestFinishedHeats(2,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -229,7 +248,7 @@ router.route('/scouts/latest_finished_heats/:Trackid').get((request, response) =
 // Gets the most recent 5 RunOffs to be unlocked
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/latest_finished_runoffs/:Trackid').get((request, response) => {
+router.route('/cubs/latest_finished_runoffs/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetLatestFinishedRunOffs(1,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -237,7 +256,7 @@ router.route('/cubs/latest_finished_runoffs/:Trackid').get((request, response) =
 
 })
 
-router.route('/scouts/latest_finished_runoffs/:Trackid').get((request, response) => {
+router.route('/scouts/latest_finished_runoffs/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetLatestFinishedRunOffs(2,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -249,7 +268,7 @@ router.route('/scouts/latest_finished_runoffs/:Trackid').get((request, response)
 // Track Summary Stats
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/tracksummary/:Trackid').get((request, response) => {
+router.route('/cubs/tracksummary/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetTrackSummaryStats(1,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -257,7 +276,7 @@ router.route('/cubs/tracksummary/:Trackid').get((request, response) => {
 
 })
 
-router.route('/scouts/tracksummary/:Trackid').get((request, response) => {
+router.route('/scouts/tracksummary/:Trackid').all(routeTimer).get((request, response) => {
 
     dbop.GetTrackSummaryStats(2,request.params.Trackid)
       .then((data) => {response.json(data[0]);})
@@ -269,7 +288,7 @@ router.route('/scouts/tracksummary/:Trackid').get((request, response) => {
 // Summary Stats
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/summary').get((request, response) => {
+router.route('/cubs/summary').all(routeTimer).get((request, response) => {
 
     dbop.GetSummaryStats(1)
       .then((data) => {response.json(data[0]);})
@@ -277,7 +296,7 @@ router.route('/cubs/summary').get((request, response) => {
 
 })
 
-router.route('/scouts/summary').get((request, response) => {
+router.route('/scouts/summary').all(routeTimer).get((request, response) => {
 
     dbop.GetSummaryStats(2)
       .then((data) => {response.json(data[0]);})
@@ -289,7 +308,7 @@ router.route('/scouts/summary').get((request, response) => {
 // GetHeatStatsByTrack
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/heatstats').get((request, response) => {
+router.route('/cubs/heatstats').all(routeTimer).get((request, response) => {
 
     dbop.GetHeatStatsByTrack(1)
       .then((data) => {response.json(data[0]);})
@@ -297,7 +316,7 @@ router.route('/cubs/heatstats').get((request, response) => {
 
 })
 
-router.route('/scouts/heatstats').get((request, response) => {
+router.route('/scouts/heatstats').all(routeTimer).get((request, response) => {
 
     dbop.GetHeatStatsByTrack(2)
       .then((data) => {response.json(data[0]);})
@@ -309,7 +328,7 @@ router.route('/scouts/heatstats').get((request, response) => {
 // GetRunOffStatsByTrack
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/runoffstats').get((request, response) => {
+router.route('/cubs/runoffstats').all(routeTimer).get((request, response) => {
 
     dbop.GetRunOffStatsByTrack(1)
       .then((data) => {response.json(data[0]);})
@@ -317,7 +336,7 @@ router.route('/cubs/runoffstats').get((request, response) => {
 
 })
 
-router.route('/scouts/runoffstats').get((request, response) => {
+router.route('/scouts/runoffstats').all(routeTimer).get((request, response) => {
 
     dbop.GetRunOffStatsByTrack(2)
       .then((data) => {response.json(data[0]);})
@@ -329,7 +348,7 @@ router.route('/scouts/runoffstats').get((request, response) => {
 // UnlockRace
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/unlockrace/:RaceType/:TrackID/:HeatID/:Signature').get((request, response) => {
+router.route('/cubs/unlockrace/:RaceType/:TrackID/:HeatID/:Signature').all(routeTimer).get((request, response) => {
 
     dbop.UnlockRace(1,request.params.RaceType, request.params.TrackID, request.params.HeatID, request.params.Signature)
       .then((data) => {response.json(data[0]);})
@@ -337,7 +356,7 @@ router.route('/cubs/unlockrace/:RaceType/:TrackID/:HeatID/:Signature').get((requ
 
 })
 
-router.route('/scouts/unlockrace/:RaceType/:TrackID/:HeatID/:Signature').get((request, response) => {
+router.route('/scouts/unlockrace/:RaceType/:TrackID/:HeatID/:Signature').all(routeTimer).get((request, response) => {
 
     dbop.UnlockRace(2,request.params.RaceType, request.params.TrackID, request.params.HeatID, request.params.Signature)
       .then((data) => {response.json(data[0]);})
@@ -349,7 +368,7 @@ router.route('/scouts/unlockrace/:RaceType/:TrackID/:HeatID/:Signature').get((re
 // SaveResults
 ////////////////////////////////////////////////////////////
 
-router.route('/cubs/saveresults/:RaceType/:TrackID/:HeatID/:Result1/:Result2/:Result3/:Result4/:Result5/:Result6/:Signature').get((request, response) => {
+router.route('/cubs/saveresults/:RaceType/:TrackID/:HeatID/:Result1/:Result2/:Result3/:Result4/:Result5/:Result6/:Signature').all(routeTimer).get((request, response) => {
 
     dbop.SaveResults(1,request.params.RaceType, request.params.TrackID, request.params.HeatID, request.params.Result1, request.params.Result2, request.params.Result3, request.params.Result4, request.params.Result5, request.params.Result6, request.params.Signature)
       .then((data) => {response.json(data[0]);})
@@ -357,7 +376,7 @@ router.route('/cubs/saveresults/:RaceType/:TrackID/:HeatID/:Result1/:Result2/:Re
 
 })
 
-router.route('/scouts/saveresults/:RaceType/:TrackID/:HeatID/:Result1/:Result2/:Result3/:Result4/:Result5/:Result6/:Signature').get((request, response) => {
+router.route('/scouts/saveresults/:RaceType/:TrackID/:HeatID/:Result1/:Result2/:Result3/:Result4/:Result5/:Result6/:Signature').all(routeTimer).get((request, response) => {
 
     dbop.SaveResults(2,request.params.RaceType, request.params.TrackID, request.params.HeatID, request.params.Result1, request.params.Result2, request.params.Result3, request.params.Result4, request.params.Result5, request.params.Result6, request.params.Signature)
       .then((data) => {response.json(data[0]);})
