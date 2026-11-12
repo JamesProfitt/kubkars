@@ -31,3 +31,68 @@ $ npm start
 
 Navigate to [`http://localhost`](http://localhost).
 
+
+## Login
+
+The first page that will greet you is the Login. Here you signup for an account. The accounts are held on the server hosting the app; there is no tie-in to any other system.
+
+![Main Screen](screenshots/KubKars_Login.png)
+
+## Signup
+
+Choose a new user/password when signing-up.
+
+The password has some complexity requirements: Must be at least 8 characters long, and include: one uppercase, one lowercase, one number, one special character. Special Characters allowed are: 
+
+```
+(#?!@$%^&*-).
+```
+
+![Main Screen](screenshots/KubKars_Signup.png)
+
+## Select Role
+
+Select your role in the races.
+
+1. Setting Up - Helping the kids place their cars on the track
+2. Recording - Recording the results of the races
+3. Monitoring - Checking how far along the races are, seeing if one track falls behind, etc.
+
+![Main Screen](screenshots/KubKars_SelectRole.png)
+
+## Setting Up
+
+During setup, you are presented with the names of the Cubs/Scouts, what group they are from, and the number on their car. Use this to make sure the cubs get their car to where they need to be. 
+There are two races presented: The current race, where cubs need to be putting their cars on the track ready for racing, and Next Race, where they need to be ready to move.
+
+![Main Screen](screenshots/KubKars_SettingUp.png)
+![Main Screen](screenshots/KubKars_SettingUp_InApp.png)
+
+## Recording
+
+As recorder, you will need to pay attention to each race, and record the results as they come in. Only ONE recorder per track should be recording, but you can have a backup. The app will refresh every 30s to keep everyone updated.
+
+![Main Screen](screenshots/KubKars_Recording.png)
+
+## Monitoring
+
+A simple screen showing the progress across all Heats/Runoffs.
+
+![Main Screen](screenshots/KubKars_Monitoring.png)
+
+## Switching Roles
+
+You can switch roles if you need, just press the Switch Roles button, and select a new role.
+
+![Main Screen](screenshots/KubKars_SwitchRole.png)
+
+
+## Switching Tracks
+
+Switching Tracks is also easy, just press the Switch Tracks button, and choose a new track from the selector.
+
+![Main Screen](screenshots/KubKars_SwitchTrack.png)
+
+
+
+
